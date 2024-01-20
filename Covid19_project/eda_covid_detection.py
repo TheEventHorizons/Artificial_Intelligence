@@ -10,7 +10,7 @@ from sklearn.feature_selection import VarianceThreshold
 from sklearn.model_selection import validation_curve
 
 
-data_path = '/Users/jordanmoles/Documents/GitHub/Artificial_Intelligence/Covid-19_project/dataset.xlsx'
+data_path = '/Users/jordanmoles/Documents/GitHub/Artificial_Intelligence/Covid19_project/dataset.xlsx'
 
 
 
@@ -225,7 +225,7 @@ blood_columns = df.columns[(missing_rate < 0.9) & (missing_rate > 0.88)]
 # Creation of the viral columns
 viral_columns = df.columns[(missing_rate < 0.88) & (missing_rate > 0.75)]
 
-'''
+
 # Relation Target/Blood
 for col in blood_columns:
     plt.figure()
@@ -259,7 +259,7 @@ for col in viral_columns:
     sns.heatmap(pd.crosstab(df['SARS-Cov-2 exam result'], df[col]), annot=True, fmt='d')
     plt.legend()
     plt.show()
-'''
+
 
 ##############################################################################################
 #                                     SLIGHTLY ADVANCED ANALYSIS
