@@ -19,9 +19,9 @@ data_path = '/Users/jordanmoles/Documents/GitHub/Artificial_Intelligence/Kaggle_
 
 # Form Analysis:
 
-- Target Variable: 
-- Rows and Columns: 
-- Types of Variables: 
+- Target Variable: Exited
+- Rows and Columns: (165034, 14)
+- Types of Variables: 6 variables int64, 5 variables float64, 3 variables object
 - Analysis of Missing Variables:
 
 # Background Analysis:
@@ -70,7 +70,14 @@ df = data.copy()
 # Observe few lines 
 print(df.head())
 
+# Shape of the DataSet
+print(data.shape)
 
+# Type of variables
+print(data.dtypes.value_counts())
+
+# Missing values
+print(data.isna().sum())
 
 
 
