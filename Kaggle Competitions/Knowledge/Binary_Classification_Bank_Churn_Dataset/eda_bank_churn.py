@@ -22,7 +22,7 @@ data_path = '/Users/jordanmoles/Documents/GitHub/Artificial_Intelligence/Kaggle_
 - Target Variable: Exited
 - Rows and Columns: (165034, 14)
 - Types of Variables: 6 variables int64, 5 variables float64, 3 variables object
-- Analysis of Missing Variables:
+- Analysis of Missing Variables: No Missing values
 
 # Background Analysis:
 
