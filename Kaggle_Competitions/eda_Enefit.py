@@ -164,7 +164,7 @@ production_df['target_consumption'] = consumption_df['target_consumption']
 df = production_df
 print(df.head())
 
-
+'''
 # Target over times when county, is_business and product_type are fixed
 
 df = df[(df['county'] == 0) & (df['is_business'] == 0) & (df['product_type'] == 3)]
@@ -199,5 +199,21 @@ plt.ylabel('target')
 plt.grid(ls='--')
 plt.legend()
 plt.show()
+'''
 
 
+# Plot each combination of target, county, is_business and product_type for one year
+
+# is_business 0
+
+for i in range(0,16):
+    for j in range(0,4):
+        selected_year = df[(df['county'] == i) & (df['is_business'] == 0) & (df['product_type'] == j)].loc['2022-01-01 00:00:00':'2023-01-01 00:00:00']
+        plt.figure()
+        sns.lineplot(x=selected_year.index, y=selected_year['target_consumption'], label = 'consumption')
+        sns.lineplot(x=selected_year.index, y=selected_year['target_production'], label = 'production', alpha = 0.7)
+        plt.ylabel('target')
+        plt.title(f'county {i} and product_type {j}')
+        plt.grid(ls='--')
+        plt.legend()
+        plt.show()
