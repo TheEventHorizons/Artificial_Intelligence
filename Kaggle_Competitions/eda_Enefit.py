@@ -31,7 +31,10 @@ data_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projec
 - Significance of Variables:
     * Train variables : county (0 to 15), product_type (0 to 3), is_consumption and is_business binary variables, data_block_id (0 to 637), prediction_unit_id (0 to 68),
                         time (2021-09-01 to 2024-01_26)
-                        For a day, we observe that consumption decrease from 6 or 7 am to 5pm  
+                        For one day, significant production during the day and minimal activity at night. Additionally, there is a decline in consumption between 6 AM and 5 PM.
+                        for one week, it seems that there is a decrease of production around day 06 and 08 (2021-09) maybe because of weather ?
+                        for the year 2022, Production seems to increase during summer  (and is almost zero on winter) whereas consumption decrease during summer and increase during winter.
+
     * Weather: 
         historical_weather
         forecast_weather
@@ -164,7 +167,7 @@ print(df.head())
 
 # Target over times when county, is_business and product_type are fixed
 
-df = df[(df['county'] == 0) & (df['is_business'] == 0) & (df['product_type'] == 1)]
+df = df[(df['county'] == 0) & (df['is_business'] == 0) & (df['product_type'] == 3)]
 print(df.head())
 
 # Observe the production and a consumption over a day
