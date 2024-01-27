@@ -16,6 +16,7 @@ data_path_forecast_weather = '/Users/jordanmoles/Documents/Programmes_Informatiq
 data_path_electricity_prices = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/electricity_prices.csv'
 data_path_client = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/client.csv'
 data_path_gas_prices = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/gas_prices.csv'
+data_path_weather_station_to_county_mapping = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/weather_station_to_county_mapping.csv'
 
 
 
@@ -35,7 +36,7 @@ data_path_gas_prices = '/Users/jordanmoles/Documents/Programmes_Informatiques/Py
 - Target Visualization: From 0.0 to 15480.274
 - Significance of Variables:
     * Train variables : county (0 to 15), product_type (0 to 3), is_consumption and is_business binary variables, data_block_id (0 to 637), prediction_unit_id (0 to 68),
-                        time (2021-09-01 to 2024-01_26)
+                        time (2021-09-01 00:00:00 to 2023-05-31 23:00:00)
                         For one day, significant production during the day and minimal activity at night. Additionally, there is a decline in consumption between 6 AM and 5 PM.
                         for one week, it seems that there is a decrease of production around day 06 and 08 (2021-09) maybe because of weather ?
                         for the year 2022, Production seems to increase during summer  (and is almost zero on winter) whereas consumption decrease during summer and increase during winter.
@@ -45,7 +46,7 @@ data_path_gas_prices = '/Users/jordanmoles/Documents/Programmes_Informatiques/Py
                               and all counties are non 0 for product_type 3                
 
     * Weather: 
-        historical_weather
+        historical_weather:
         forecast_weather
     * Electricity prices
     * Gas Prices
@@ -111,7 +112,9 @@ print(number_types)
 df_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
 print(df_resume)
 
-
+# Print max-min index
+print(df.index.min())
+print(df.index.max())
 '''
 
 
@@ -275,9 +278,58 @@ plt.show()
 '''
 
 
+##############################################################################################
+#                                      weather_station_to_county_mapping
+##############################################################################################
+
+
+# Read the data
+data_weather_station_to_county_mapping = pd.read_csv(data_path_weather_station_to_county_mapping)
+
+# Copy the Data
+df_weather_station_to_county_mapping = data_weather_station_to_county_mapping.copy()
+
+# Observe few lines 
+print(df_weather_station_to_county_mapping)
+
+# Shape of the data
+print('The shape of df is:', df_weather_station_to_county_mapping.shape)
+
+
+# Create columns
+Column_name = list(df_weather_station_to_county_mapping.columns)
+
+# Number of NaN in each column
+number_na = df_weather_station_to_county_mapping.isna().sum()
+
+# Type of Data and the number
+types = df_weather_station_to_county_mapping.dtypes
+number_types = df_weather_station_to_county_mapping.dtypes.value_counts()
+print(number_types)
+
+# Create a resume table
+df_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
+print(df_resume)
+
+
+df_weather_station_to_county_mapping = df_weather_station_to_county_mapping.dropna(axis=0)
+
+# Observe few lines 
+print(df_weather_station_to_county_mapping)
+
+# Shape of the data
+print('The shape of df is:', df_weather_station_to_county_mapping.shape)
 
 
 
+##############################################################################################
+#                                      Historical_weather
+##############################################################################################
+
+
+
+
+'''
 # Read the data
 data_historical_weather = pd.read_csv(data_path_historical_weather)
 
@@ -287,6 +339,14 @@ df_historical_weather = data_historical_weather.copy()
 # Observe few lines 
 print(df_historical_weather.head())
 
+pd.set_option('display.max_row',111)
+selected_rows = df_historical_weather.loc[
+    (df_historical_weather['datetime'] >= '2021-09-01 00:00:00') &
+    (df_historical_weather['datetime'] <= '2021-09-02 00:00:00')
+]
+print(selected_rows)
+
+print(df_historical_weather[df_historical_weather['datetime'] == '2021-09-01 00:00:00'])
 
 # Shape of the data
 print('The shape of df is:', df_historical_weather.shape)
@@ -306,3 +366,6 @@ print(number_types)
 # Create a resume table
 df_historical_weather_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
 print(df_historical_weather_resume)
+
+
+print(df_historical_weather['datetime'][1710801])'''
