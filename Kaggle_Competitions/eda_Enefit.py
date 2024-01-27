@@ -10,7 +10,12 @@ from sklearn.feature_selection import VarianceThreshold
 from sklearn.model_selection import validation_curve
 
 
-data_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/train.csv'
+data_path_train = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/train.csv'
+data_path_historical_weather = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/historical_weather.csv'
+data_path_forecast_weather = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/forecast_weather.csv'
+data_path_electricity_prices = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/electricity_prices.csv'
+data_path_client = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/client.csv'
+data_path_gas_prices = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/predict-energy-behavior-of-prosumers/gas_prices.csv'
 
 
 
@@ -34,7 +39,10 @@ data_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projec
                         For one day, significant production during the day and minimal activity at night. Additionally, there is a decline in consumption between 6 AM and 5 PM.
                         for one week, it seems that there is a decrease of production around day 06 and 08 (2021-09) maybe because of weather ?
                         for the year 2022, Production seems to increase during summer  (and is almost zero on winter) whereas consumption decrease during summer and increase during winter.
-                        not all product types exist in all county
+                        not all product types exist in all county. 
+                            - when business is 0, product_type is 0 for each county, only 2 are 0 for product_type 1 (6 and 12), only 3 are non 0 for product_type 2 (0, 7 and 11), and only 2 are 0 for product_type 3 (6 and 12)
+                            - when business is 1, product_type is non 0 only for  county (0, 4, 5, 7, 11 and 15) , only 4 are 0 for product_type 1 (1, 6, 8 and 12), only 3 are non 0 for product_type 2 (0, 10 and 11), 
+                              and all counties are non 0 for product_type 3                
 
     * Weather: 
         historical_weather
@@ -70,12 +78,13 @@ data_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projec
 #                                      FORM ANALYSIS
 ##############################################################################################
 
+'''
 # Display the max row and the max columns
 pd.set_option('display.max_row',111)
 #pd.set_option('display.max_columns',111)
 
 # Read the data
-data = pd.read_csv(data_path, parse_dates=['datetime'], index_col='datetime')
+data = pd.read_csv(data_path_train, parse_dates=['datetime'], index_col='datetime')
 
 # Copy the Data
 df = data.copy()
@@ -103,7 +112,7 @@ df_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN
 print(df_resume)
 
 
-
+'''
 
 
 ##############################################################################################
@@ -149,7 +158,7 @@ for col in df.select_dtypes('int64'):
     print(f'{col :-<50} - {df[col].value_counts()}')
     df[col].value_counts().plot.pie()
     plt.show()
-'''
+
 
 
 # Creating consumption and production targets
@@ -170,7 +179,7 @@ production_df['target_consumption'] = consumption_df['target_consumption']
 
 df = production_df
 print(df.head())
-
+'''
 '''
 # Target over times when county, is_business and product_type are fixed
 
@@ -224,7 +233,7 @@ for a in df['is_business'].unique():
             plt.grid(ls='--')
             plt.legend()
             plt.show()
-'''
+
 
 # Count the number of product types in counties according to business and store it
 counties = df["county"].unique()
@@ -263,5 +272,37 @@ sns.heatmap(df_heatmap_1, annot=True, cmap='Dark2', fmt='.1f', linewidths=.5, ax
 axs[1].set_title('Heatmap for is_business = 1')
 
 plt.show()
+'''
 
 
+
+
+
+# Read the data
+data_historical_weather = pd.read_csv(data_path_historical_weather)
+
+# Copy the Data
+df_historical_weather = data_historical_weather.copy()
+
+# Observe few lines 
+print(df_historical_weather.head())
+
+
+# Shape of the data
+print('The shape of df is:', df_historical_weather.shape)
+
+
+# Create columns
+Column_name = list(df_historical_weather.columns)
+
+# Number of NaN in each column
+number_na = df_historical_weather.isna().sum()
+
+# Type of Data and the number
+types = df_historical_weather.dtypes
+number_types = df_historical_weather.dtypes.value_counts()
+print(number_types)
+
+# Create a resume table
+df_historical_weather_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
+print(df_historical_weather_resume)
