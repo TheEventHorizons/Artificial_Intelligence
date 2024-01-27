@@ -34,6 +34,7 @@ data_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projec
                         For one day, significant production during the day and minimal activity at night. Additionally, there is a decline in consumption between 6 AM and 5 PM.
                         for one week, it seems that there is a decrease of production around day 06 and 08 (2021-09) maybe because of weather ?
                         for the year 2022, Production seems to increase during summer  (and is almost zero on winter) whereas consumption decrease during summer and increase during winter.
+                        not all product types exist in all county
 
     * Weather: 
         historical_weather
@@ -98,7 +99,7 @@ number_types = df.dtypes.value_counts()
 print(number_types)
 
 # Create a resume table
-df_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na, })
+df_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
 print(df_resume)
 
 
@@ -210,11 +211,10 @@ plt.show()
 
 # Plot each combination of target, county, is_business and product_type
 
-# is_business 0
-
-for a in range(0,2):
-    for i in range(0,16):
-         for j in range(0,4):
+'''
+for a in df['is_business'].unique():
+    for i in df['county'].unique():
+         for j in df['product_type'].unique():
             selected_year = df[(df['county'] == i) & (df['is_business'] == a) & (df['product_type'] == j)].loc['2021-09-01 00:00:00':'2023-05-31 23:00:00']
             plt.figure()
             sns.lineplot(x=selected_year.index, y=selected_year['target_consumption'], label = 'consumption')
@@ -224,3 +224,44 @@ for a in range(0,2):
             plt.grid(ls='--')
             plt.legend()
             plt.show()
+'''
+
+# Count the number of product types in counties according to business and store it
+counties = df["county"].unique()
+product_types = [0, 1, 2, 3]
+
+# Initialize an empty matrix for is_business = 0
+matrix_business_0 = np.zeros((len(counties), len(product_types)))
+
+# Initialize an empty matrix for is_business = 1
+matrix_business_1 = np.zeros((len(counties), len(product_types)))
+
+for i, product_type in enumerate(product_types):
+    for j, county in enumerate(counties):
+        # Count for is_business = 0
+        count_0 = len(df[(df["product_type"] == product_type) & (df["county"] == county) & (df["is_business"] == 0)])
+        matrix_business_0[j, i] = count_0
+
+        # Count for is_business = 1
+        count_1 = len(df[(df["product_type"] == product_type) & (df["county"] == county) & (df["is_business"] == 1)])
+        matrix_business_1[j, i] = count_1
+
+# Create DataFrames from the matrices
+columns = [f"Product_Type_{i}" for i in product_types]
+df_heatmap_0 = pd.DataFrame(matrix_business_0, index=counties, columns=columns)
+df_heatmap_1 = pd.DataFrame(matrix_business_1, index=counties, columns=columns)
+
+# Plot heatmaps side by side
+fig, axs = plt.subplots(1, 2, figsize=(16, 6))
+
+# Plot for is_business = 0
+sns.heatmap(df_heatmap_0, annot=True, cmap='Dark2', fmt='.1f', linewidths=.5, ax=axs[0])
+axs[0].set_title('Heatmap for is_business = 0')
+
+# Plot for is_business = 1
+sns.heatmap(df_heatmap_1, annot=True, cmap='Dark2', fmt='.1f', linewidths=.5, ax=axs[1])
+axs[1].set_title('Heatmap for is_business = 1')
+
+plt.show()
+
+
