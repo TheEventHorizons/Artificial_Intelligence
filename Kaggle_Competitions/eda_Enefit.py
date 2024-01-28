@@ -44,7 +44,7 @@ data_path_weather_station_to_county_mapping = '/Users/jordanmoles/Documents/Prog
                             - when business is 0, product_type is 0 for each county, only 2 are 0 for product_type 1 (6 and 12), only 3 are non 0 for product_type 2 (0, 7 and 11), and only 2 are 0 for product_type 3 (6 and 12)
                             - when business is 1, product_type is non 0 only for  county (0, 4, 5, 7, 11 and 15) , only 4 are 0 for product_type 1 (1, 6, 8 and 12), only 3 are non 0 for product_type 2 (0, 10 and 11), 
                               and all counties are non 0 for product_type 3                
-
+    * weather_station_to_county_mapping: we associate counties to longitude and latitude, some counties have more than one station
     * Weather: 
         historical_weather:
         forecast_weather
@@ -282,7 +282,7 @@ plt.show()
 #                                      weather_station_to_county_mapping
 ##############################################################################################
 
-
+'''
 # Read the data
 data_weather_station_to_county_mapping = pd.read_csv(data_path_weather_station_to_county_mapping)
 
@@ -297,10 +297,10 @@ print('The shape of df is:', df_weather_station_to_county_mapping.shape)
 
 
 # Create columns
-Column_name = list(df_weather_station_to_county_mapping.columns)
+Column_name_weather_station_to_county_mapping = list(df_weather_station_to_county_mapping.columns)
 
 # Number of NaN in each column
-number_na = df_weather_station_to_county_mapping.isna().sum()
+number_na_weather_station_to_county_mapping = df_weather_station_to_county_mapping.isna().sum()
 
 # Type of Data and the number
 types = df_weather_station_to_county_mapping.dtypes
@@ -308,17 +308,22 @@ number_types = df_weather_station_to_county_mapping.dtypes.value_counts()
 print(number_types)
 
 # Create a resume table
-df_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
+df_resume = pd.DataFrame({'features': Column_name_weather_station_to_county_mapping, 'Type': types, 'Number of NaN': number_na_weather_station_to_county_mapping })
 print(df_resume)
 
 
 df_weather_station_to_county_mapping = df_weather_station_to_county_mapping.dropna(axis=0)
 
-# Observe few lines 
-print(df_weather_station_to_county_mapping)
+# Observe 
+print(df_weather_station_to_county_mapping.sort_values(['county']))
+
+# count 
+print(df_weather_station_to_county_mapping.value_counts(['county']).sort_values())
 
 # Shape of the data
 print('The shape of df is:', df_weather_station_to_county_mapping.shape)
+'''
+
 
 
 
@@ -329,7 +334,7 @@ print('The shape of df is:', df_weather_station_to_county_mapping.shape)
 
 
 
-'''
+
 # Read the data
 data_historical_weather = pd.read_csv(data_path_historical_weather)
 
@@ -368,4 +373,4 @@ df_historical_weather_resume = pd.DataFrame({'features': Column_name, 'Type': ty
 print(df_historical_weather_resume)
 
 
-print(df_historical_weather['datetime'][1710801])'''
+print(df_historical_weather['datetime'][1710801])
