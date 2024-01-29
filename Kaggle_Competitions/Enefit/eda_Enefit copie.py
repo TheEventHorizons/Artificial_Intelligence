@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-
-
+import polars as pl
+import os
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from sklearn.feature_selection import VarianceThreshold
@@ -25,10 +25,54 @@ data_path_weather_station_to_county_mapping = '/Users/jordanmoles/Documents/Prog
 
 # Form Analysis:
 
+o Train
 - Target Variable: target and is_consumption
 - Rows and Columns: (2018352, 9)
+- min-max datetime:
 - Types of Variables: 7 int64, 1 float64
 - Analysis of Missing Variables: 528 in the target column
+
+
+o historical_weather
+- Rows and Columns: (1710802, 18)
+- min-max datetime: from 2021-09-01 00:00:00 to 2023-05-30 10:00:00
+- Types of Variables: 5 int64, 12 float64
+- Analysis of Missing Variables: No missing variables
+
+
+o forecast_weather
+- Rows and Columns: (3424512, 18)
+- min-max datetime: from 2021-09-01 02:00:00 to 2023-05-30 02:00:00
+- Types of Variables: 14 float64, 2 object, 2 int64
+- Analysis of Missing Variables: 2 
+
+
+o weather_station_to_county_mapping
+- Rows and Columns: (112, 4)
+- Types of Variables: 3 float64, 1 object
+- Analysis of Missing Variables: 63 missing values in the county column corresponding to county_name column
+
+
+o electricity_prices
+- Rows and Columns: (15286, 4)
+- Types of Variables: 2 object, 1 float64, 1 int64
+- Analysis of Missing Variables: No missing value
+
+
+o client
+- Rows and Columns: (41919, 7)
+- min-max datetime:
+- Types of Variables: 5 int64, 1 float64, 1 object
+- Analysis of Missing Variables: No missing values
+
+
+o gas_prices
+- Rows and Columns: (637, 5)
+- min-max datetime:
+- Types of Variables: 2 object, 1 float64, 1 int64 
+- Analysis of Missing Variables: No missing values
+
+
 
 
 # Background Analysis:
@@ -75,9 +119,18 @@ data_path_weather_station_to_county_mapping = '/Users/jordanmoles/Documents/Prog
 
 
 
+############################################################################################################################################################################################
+#                                                                                       FORM ANALYSIS
+############################################################################################################################################################################################
+
+
+
+
 ##############################################################################################
-#                                      FORM ANALYSIS
+#                                      Train
 ##############################################################################################
+
+
 
 '''
 # Display the max row and the max columns
@@ -116,6 +169,369 @@ print(df_resume)
 print(df.index.min())
 print(df.index.max())
 '''
+
+
+
+
+##############################################################################################
+#                                      weather_station_to_county_mapping
+##############################################################################################
+
+
+
+
+# Read the data
+data_weather_station_to_county_mapping = pd.read_csv(data_path_weather_station_to_county_mapping)
+
+# Copy the Data
+df_weather_station_to_county_mapping = data_weather_station_to_county_mapping.copy()
+
+# Observe few lines 
+print(df_weather_station_to_county_mapping.head())
+
+
+# Shape of the data
+print('The shape of df is:', df_weather_station_to_county_mapping.shape)
+
+
+# Create columns
+Column_name = list(df_weather_station_to_county_mapping.columns)
+
+# Number of NaN in each column
+number_na = df_weather_station_to_county_mapping.isna().sum()
+
+# Type of Data and the number
+types = df_weather_station_to_county_mapping.dtypes
+number_types = df_weather_station_to_county_mapping.dtypes.value_counts()
+print(number_types)
+
+# Create a resume table
+df_weather_station_to_county_mapping_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
+#print(df_weather_station_to_county_mapping_resume)
+
+df_weather_station_to_county_mapping['latitude'] = df_weather_station_to_county_mapping['latitude'].round(1)
+
+# Print max-min index
+#print(df_weather_station_to_county_mapping.index.min())
+#print(df_weather_station_to_county_mapping.index.max())
+
+# Remove useless rows
+df_weather_station_to_county_mapping = df_weather_station_to_county_mapping.dropna(axis=0)
+#print(df_weather_station_to_county_mapping.head())
+#print(df_weather_station_to_county_mapping.value_counts().sort_values())
+
+
+
+
+
+##############################################################################################
+#                                      Historical_weather
+##############################################################################################
+
+
+
+# Read the data
+data_historical_weather = pd.read_csv(data_path_historical_weather)
+
+# Copy the Data
+df_historical_weather = data_historical_weather.copy()
+
+# Observe few lines 
+print(df_historical_weather.head())
+
+
+# Shape of the data
+print('The shape of df is:', df_historical_weather.shape)
+
+
+# Create columns
+Column_name = list(df_historical_weather.columns)
+
+# Number of NaN in each column
+number_na = df_historical_weather.isna().sum()
+
+# Type of Data and the number
+types = df_historical_weather.dtypes
+number_types = df_historical_weather.dtypes.value_counts()
+print(number_types)
+
+# Create a resume table
+df_historical_weather_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
+#print(df_historical_weather_resume)
+
+# Print max-min index
+#print(df_historical_weather.index.min())
+#print(df_historical_weather.index.max())
+
+# add column county associated to longitude and latitude
+df_historical_weather=pd.merge(df_historical_weather, df_weather_station_to_county_mapping[['latitude', 'longitude', 'county']], on=['latitude', 'longitude'], how='left')
+
+
+print(df_historical_weather[df_historical_weather['county']==2.0])
+
+# use datetime index
+#df_historical_weather.set_index('datetime', inplace=True)
+
+# remove useless rows
+#df_historical_weather = df_historical_weather.dropna(axis=0)
+
+# creating average historical characteristics for weather stations related to county
+df_historical_weather = df_historical_weather.groupby(['datetime', 'county']).mean()
+
+# drop latitude and longitude columns
+df_historical_weather= df_historical_weather.drop(['latitude', 'longitude'], axis=1)
+
+# historical_weather during one day
+#print(df_historical_weather['2021-09-01 00:00:00':'2021-09-01 01:00:00'])
+#print(df_historical_weather.shape)
+
+
+
+
+
+##############################################################################################
+#                                      Forecast_weather
+##############################################################################################
+
+
+
+# Read the data
+data_forecast_weather = pd.read_csv(data_path_forecast_weather)
+
+# Copy the Data
+df_forecast_weather = data_forecast_weather.copy()
+
+# Observe few lines 
+print(df_forecast_weather.head())
+
+'''
+##
+pd.set_option('display.max_row',111)
+selected_rows = df_forecast_weather.loc[
+    (df_forecast_weather['datetime'] >= '2021-09-01 00:00:00') &
+    (df_forecast_weather['datetime'] <= '2021-09-02 00:00:00')
+]
+print(selected_rows)
+
+print(df_forecast_weather[df_forecast_weather['datetime'] == '2021-09-01 00:00:00'])
+##
+'''
+
+# Shape of the data
+print('The shape of df is:', df_forecast_weather.shape)
+
+
+# Create columns
+Column_name = list(df_forecast_weather.columns)
+
+# Number of NaN in each column
+number_na = df_forecast_weather.isna().sum()
+
+# Type of Data and the number
+types = df_forecast_weather.dtypes
+number_types = df_forecast_weather.dtypes.value_counts()
+print(number_types)
+
+# Create a resume table
+df_forecast_weather_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
+print(df_forecast_weather_resume)
+
+# Print max-min index
+print(df_forecast_weather.index.min())
+print(df_forecast_weather.index.max())
+
+# Extract and drop some columns
+columns_forecast = df_forecast_weather[['forecast_datetime', 'hours_ahead']]
+df_forecast_weather = df_forecast_weather.drop(['forecast_datetime','hours_ahead'], axis=1)
+
+# add column county associated to longitude and latitude
+df_forecast_weather=pd.merge(df_forecast_weather, df_weather_station_to_county_mapping[['latitude', 'longitude', 'county']], on=['latitude', 'longitude'], how='left')
+
+
+print(df_forecast_weather[df_forecast_weather['county']==1.0])
+
+# use datetime index
+#df_forecast_weather.set_index('datetime', inplace=True)
+
+# remove useless rows
+#df_forecast_weather = df_forecast_weather.dropna(axis=0)
+
+# creating average historical characteristics for weather stations related to county
+#df_forecast_weather = df_forecast_weather.groupby(['datetime', 'county']).mean()
+
+# drop latitude and longitude columns
+#df_forecast_weather= df_forecast_weather.drop(['latitude', 'longitude'], axis=1)
+
+# historical_weather during one day
+#print(df_forecast_weather['2021-09-01 00:00:00':'2021-09-01 01:00:00'])
+#print(df_forecast_weather.shape)
+
+
+
+
+
+
+
+
+
+##############################################################################################
+#                                      electricity_prices
+##############################################################################################
+
+
+'''
+# Read the data
+data_electricity_prices = pd.read_csv(data_path_electricity_prices)
+
+# Copy the Data
+df_electricity_prices = data_electricity_prices.copy()
+
+# Observe few lines 
+print(df_electricity_prices.head())
+
+
+
+# Shape of the data
+print('The shape of df is:', df_electricity_prices.shape)
+
+
+# Create columns
+Column_name = list(df_electricity_prices.columns)
+
+# Number of NaN in each column
+number_na = df_electricity_prices.isna().sum()
+
+# Type of Data and the number
+types = df_electricity_prices.dtypes
+number_types = df_electricity_prices.dtypes.value_counts()
+print(number_types)
+
+# Create a resume table
+df_electricity_prices_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
+print(df_electricity_prices_resume)
+'''
+
+
+
+
+##############################################################################################
+#                                           client
+##############################################################################################
+
+'''
+# Read the data
+data_client = pd.read_csv(data_path_client)
+
+# Copy the Data
+df_client = data_client.copy()
+
+# Observe few lines 
+print(df_client.head())
+
+
+
+# Shape of the data
+print('The shape of df is:', df_client.shape)
+
+
+# Create columns
+Column_name = list(df_client.columns)
+
+# Number of NaN in each column
+number_na = df_client.isna().sum()
+
+# Type of Data and the number
+types = df_client.dtypes
+number_types = df_client.dtypes.value_counts()
+print(number_types)
+
+# Create a resume table
+df_client_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
+print(df_client_resume)
+'''
+
+
+
+##############################################################################################
+#                                         gas_prices
+##############################################################################################
+
+
+
+
+'''
+# Read the data
+data_gas_prices = pd.read_csv(data_path_gas_prices)
+
+# Copy the Data
+df_gas_prices = data_gas_prices.copy()
+
+# Observe few lines 
+print(df_gas_prices.head())
+
+
+
+# Shape of the data
+print('The shape of df is:', df_gas_prices.shape)
+
+
+# Create columns
+Column_name = list(df_gas_prices.columns)
+
+# Number of NaN in each column
+number_na = df_gas_prices.isna().sum()
+
+# Type of Data and the number
+types = df_gas_prices.dtypes
+number_types = df_gas_prices.dtypes.value_counts()
+print(number_types)
+
+# Create a resume table
+df_gas_prices_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
+print(df_gas_prices_resume)
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ##############################################################################################
@@ -326,51 +742,3 @@ print('The shape of df is:', df_weather_station_to_county_mapping.shape)
 
 
 
-
-##############################################################################################
-#                                      Historical_weather
-##############################################################################################
-
-
-
-
-
-# Read the data
-data_historical_weather = pd.read_csv(data_path_historical_weather)
-
-# Copy the Data
-df_historical_weather = data_historical_weather.copy()
-
-# Observe few lines 
-print(df_historical_weather.head())
-
-pd.set_option('display.max_row',111)
-selected_rows = df_historical_weather.loc[
-    (df_historical_weather['datetime'] >= '2021-09-01 00:00:00') &
-    (df_historical_weather['datetime'] <= '2021-09-02 00:00:00')
-]
-print(selected_rows)
-
-print(df_historical_weather[df_historical_weather['datetime'] == '2021-09-01 00:00:00'])
-
-# Shape of the data
-print('The shape of df is:', df_historical_weather.shape)
-
-
-# Create columns
-Column_name = list(df_historical_weather.columns)
-
-# Number of NaN in each column
-number_na = df_historical_weather.isna().sum()
-
-# Type of Data and the number
-types = df_historical_weather.dtypes
-number_types = df_historical_weather.dtypes.value_counts()
-print(number_types)
-
-# Create a resume table
-df_historical_weather_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
-print(df_historical_weather_resume)
-
-
-print(df_historical_weather['datetime'][1710801])
