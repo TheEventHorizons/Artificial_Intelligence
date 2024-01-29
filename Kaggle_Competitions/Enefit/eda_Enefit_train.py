@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import polars as pl
 import os
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
@@ -38,13 +37,20 @@ df_weather_station_to_county_mapping = df_weather_station_to_county_mapping.drop
 
 
 # Associate latitude and longitude to counties
-df_historical_weather=pd.merge(df_historical_weather, df_weather_station_to_county_mapping[['latitude', 'longitude', 'county']], on=['latitude', 'longitude'], how='left')
-print(df_historical_weather)
+df_historical_weather = pd.merge(df_historical_weather, df_weather_station_to_county_mapping[['latitude', 'longitude', 'county']], on=['latitude', 'longitude'], how='left')
+df_historical_weather = df_historical_weather.drop(['latitude', 'longitude'], axis = 1)
+df_historical_weather = df_historical_weather.dropna(axis=0).reset_index()
+df_forecast_weather = pd.merge(df_forecast_weather, df_weather_station_to_county_mapping[['latitude', 'longitude', 'county']], on=['latitude', 'longitude'], how='left')
+df_forecast_weather = df_forecast_weather.drop(['latitude', 'longitude'], axis = 1)
+df_forecast_weather = df_forecast_weather.dropna(axis=0).reset_index()
 
 
+# Group by multiple columns and aggregate mean for each dataframe
+mean_train = df_train.groupby(['county', 'is_business', 'product_type', 'is_consumption', 'datetime', 'data_block_id', 'prediction_unit_id']).agg({'target': 'mean'}).reset_index()
+mean_historical_weather = df_historical_weather.groupby(['county', 'datetime', 'data_block_id']).agg({'rain':'mean', 'surface_pressure': 'mean','cloudcover_total': 'mean','cloudcover_high': 'mean','cloudcover_low': 'mean','cloudcover_mid': 'mean','windspeed_10m': 'mean','winddirection_10m': 'mean','shortwave_radiation': 'mean','direct_solar_radiation': 'mean','diffuse_radiation': 'mean','snowfall': 'mean'}).reset_index()
+mean_forecast_weather = df_forecast_weather.groupby(['county', 'origin_datetime', 'forecast_datetime', 'data_block_id']).agg({'temperature': 'mean','dewpoint': 'mean','cloudcover_high': 'mean','cloudcover_low': 'mean','cloudcover_mid': 'mean','cloudcover_total': 'mean','10_metre_u_wind_component': 'mean','10_metre_v_wind_component': 'mean','direct_solar_radiation': 'mean','surface_solar_radiation_downwards': 'mean','snowfall': 'mean','total_precipitation': 'mean'}).reset_index()
 
-
-
+print(mean_train)
 
 
 
