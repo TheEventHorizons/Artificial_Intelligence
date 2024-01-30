@@ -132,7 +132,6 @@ o gas_prices
 
 
 
-'''
 # Display the max row and the max columns
 pd.set_option('display.max_row',111)
 #pd.set_option('display.max_columns',111)
@@ -165,10 +164,12 @@ print(number_types)
 df_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na })
 print(df_resume)
 
+
+
 # Print max-min index
 print(df.index.min())
 print(df.index.max())
-'''
+
 
 
 
@@ -217,8 +218,8 @@ df_weather_station_to_county_mapping['latitude'] = df_weather_station_to_county_
 
 # Remove useless rows
 df_weather_station_to_county_mapping = df_weather_station_to_county_mapping.dropna(axis=0)
-#print(df_weather_station_to_county_mapping.head())
-#print(df_weather_station_to_county_mapping.value_counts().sort_values())
+print(df_weather_station_to_county_mapping.head())
+print(df_weather_station_to_county_mapping.value_counts().sort_values())
 
 
 
@@ -229,7 +230,7 @@ df_weather_station_to_county_mapping = df_weather_station_to_county_mapping.drop
 ##############################################################################################
 
 
-
+'''
 # Read the data
 data_historical_weather = pd.read_csv(data_path_historical_weather)
 
@@ -285,7 +286,7 @@ df_historical_weather= df_historical_weather.drop(['latitude', 'longitude'], axi
 #print(df_historical_weather['2021-09-01 00:00:00':'2021-09-01 01:00:00'])
 #print(df_historical_weather.shape)
 
-
+'''
 
 
 
@@ -293,7 +294,7 @@ df_historical_weather= df_historical_weather.drop(['latitude', 'longitude'], axi
 #                                      Forecast_weather
 ##############################################################################################
 
-
+'''
 
 # Read the data
 data_forecast_weather = pd.read_csv(data_path_forecast_weather)
@@ -304,7 +305,7 @@ df_forecast_weather = data_forecast_weather.copy()
 # Observe few lines 
 print(df_forecast_weather.head())
 
-'''
+
 ##
 pd.set_option('display.max_row',111)
 selected_rows = df_forecast_weather.loc[
@@ -315,7 +316,7 @@ print(selected_rows)
 
 print(df_forecast_weather[df_forecast_weather['datetime'] == '2021-09-01 00:00:00'])
 ##
-'''
+
 
 # Shape of the data
 print('The shape of df is:', df_forecast_weather.shape)
@@ -367,7 +368,7 @@ print(df_forecast_weather[df_forecast_weather['county']==1.0])
 #print(df_forecast_weather.shape)
 
 
-
+'''
 
 
 
