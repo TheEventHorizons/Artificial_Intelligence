@@ -203,6 +203,7 @@ for col in df.select_dtypes('object'):
 
 ########### Relationship Variables/Target ###########
 
+'''
 # Creating positive and negative subsets
 
 # Positive subset
@@ -259,7 +260,7 @@ for col in viral_columns:
     sns.heatmap(pd.crosstab(df['SARS-Cov-2 exam result'], df[col]), annot=True, fmt='d')
     plt.legend()
     plt.show()
-
+'''
 
 ##############################################################################################
 #                                     SLIGHTLY ADVANCED ANALYSIS
@@ -296,10 +297,11 @@ for col in blood_columns:
     plt.show()
 '''
 
+'''
 # Display the correlation matrix
 print(df.corr()['Patient age quantile'].sort_values())
 
-
+'''
 
 
 
@@ -320,7 +322,7 @@ plt.legend()
 plt.show()
 '''
 
-
+'''
 # * Relations Viral blood
 
 # Create sick variable (A patient is sick without having covid) without columns rapid Test
@@ -332,6 +334,7 @@ sick_df = df[df['is sick'] == True]
 print(sick_df.head())
 non_sick_df = df[df['is sick'] == False]
 print(non_sick_df.head())
+'''
 
 '''
 for col in blood_columns:
@@ -341,7 +344,7 @@ for col in blood_columns:
     plt.legend()
     plt.show()
 '''
-
+'''
 # Create an Hospitalization function
 def Hospitalization(df):
     if df['Patient addmited to regular ward (1=yes, 0=no)'] == 1:
@@ -359,7 +362,7 @@ df['status'] = df.apply(Hospitalization, axis=1)
 # Print few lines of the new dataframe
 print(df.head())
 
-'''
+
 # Display blood rate of patient in different status
 for col in blood_columns:
     plt.figure()
@@ -367,7 +370,7 @@ for col in blood_columns:
         sns.distplot(df[df['status'] == cat][col], label=f'status {cat}')
     plt.legend()
     plt.show()
-'''
+
 
 
 
@@ -422,5 +425,5 @@ for col in blood_columns:
     print(f'{col:-<50} - {t_test(col)}')
 
 
-
+'''
 
