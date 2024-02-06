@@ -26,7 +26,7 @@ data_train_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/
 
 # Background Analysis:
 
-- Target Visualization:
+- Target Visualization: The target variable is well balanced. Number of votes for each type of activity is between 15000 and 20000
 - Significance of Variables:
 - Relationship Variables/Target:
 
@@ -48,9 +48,10 @@ data_train_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/
 
 
 
-##############################################################################################
-#                                      FORM ANALYSIS
-##############################################################################################
+############################################################################################################################################################################################
+#                                                                                           FORM ANALYSIS TRAIN
+############################################################################################################################################################################################
+
 
 # Display the max row and the max columns
 pd.set_option('display.max_row',111)
@@ -84,47 +85,84 @@ df_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN
 print(df_resume)
 
 
-# Count the number of unique eeg_id, spectrogram_id, label_id, patient_id
-list_column_id = ['eeg_id', 'spectrogram_id', 'label_id','patient_id']
-for id in list_column_id:
-    print(f'The number of unique element in the column {id} is ', len(df[id].unique()))
 
 
 
 
-##############################################################################################
-#                                      BACKGROUND ANALYSIS
-##############################################################################################
 
 
-target_columns = ['seizure_vote', 'lpd_vote','gpd_vote','lrda_vote','grda_vote','other_vote']
+############################################################################################################################################################################################
+#                                                                                           BACKGROUND ANALYSIS TRAIN
+############################################################################################################################################################################################
+
+
 
 ########## Target vizualisation ##########
 
+# Define the target columns
+target_columns = ['seizure_vote', 'lpd_vote','gpd_vote','lrda_vote','grda_vote','other_vote']
+
+# expert_consensus column is a part of target column since it represent the max of votes
+consensus_column = ['expert_consensus']
+
+# Display few line of the target columns
 print(df[target_columns].head())
+
+
+# Display the proportion of types in the column 'expert_consensus'
+count_df_consensus = df['expert_consensus'].value_counts().reset_index()
+count_df_consensus.columns=['expert_consensus','count']
+
+# Define colors
+colors = sns.color_palette("viridis", len(count_df_consensus))
+'''
+# Display df_consensus in a bar
+plt.figure(figsize=(12,8))
+plt.bar(count_df_consensus['expert_consensus'], count_df_consensus['count'], color=colors, zorder=2)
+plt.xlabel('Expert consensus')
+plt.ylabel('Count')
+plt.title('Distribution of Expert Consensus')
+plt.legend()
+plt.grid(ls='--')
+plt.show()
+'''
+
+
+
+
 
 
 
 ########## Significance of Variables ##########
 
 
+# Count the number of unique eeg_id, spectrogram_id, label_id, patient_id and Select columns with float type and observe the histogram
+list_column_id = ['eeg_id', 'spectrogram_id', 'label_id', 'patient_id']
+for id in list_column_id:
+    df_count_id = df[id].value_counts().reset_index()
+    df_count_id.columns = [id,'Count']
+    print(df_count_id)
+
+
+print(df_count_id.loc[df_count_id['Count'].idxmax(),'patient_id'])
+
+print(df[df['patient_id']==df_count_id.loc[df_count_id['Count'].idxmax(),'patient_id']])
 
 '''
 plt.figure(figsize=(12,8))
-sns.heatmap(df[target_columns], cbar=True)
-plt.show()
+for id in list_column_id:
+    df_counts = df[id].value_counts().reset_index()
+    df_counts.columns=[id,'count']
+    plt.bar(df_counts.index, df_counts['count'], color=colors, zorder=2)
+    plt.xlabel(id)
+    plt.ylabel('Count')
+    plt.title(f'Distribution of {id}')
+    plt.legend()
+    plt.grid(ls='--')
+    plt.show()
 '''
 
-'''
-# Select columns with float type and observe the histogram
-plt.figure()
-sns.displot(df['eeg_id'], bins=len(df['eeg_id'].unique()))
-print('eeg_id')
-plt.show()
 
-# Select columns with float type and observe the histogram
-plt.figure()
-sns.displot(df['spectrogram_id'], bins=len(df['spectrogram_id'].unique()))
-print('eeg_id')
-plt.show()
-'''
+print(df['eeg_label_offset_seconds'].unique().sort_values())
+
+
