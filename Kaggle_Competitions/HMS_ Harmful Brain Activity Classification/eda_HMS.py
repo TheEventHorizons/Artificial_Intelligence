@@ -150,13 +150,13 @@ plt.show()
 # Each eeg_id contains eeg_sub_id which can go from 0 to 742 associated to a eeg_label_offset_seconds which goes from 0.0 to 3372.0. Thus the occurency of a eeg_id goes from 1 to 743.
 # A eeg_id is associated to a unique spectrogram_id.
 
-
+'''
 # Count the number of unique eeg_id
 df_count_eeg_id = df['eeg_id'].value_counts().reset_index()
 df_count_eeg_id.columns = ['eeg_id','Count']
 print(df_count_eeg_id)
 
-'''
+
 # Display if in a figure
 plt.figure(figsize=(12,8))
 plt.bar(df_count_eeg_id.index, df_count_eeg_id['Count'], color=colors, zorder=2)
@@ -166,7 +166,7 @@ plt.title('Distribution of eeg_id')
 plt.legend()
 plt.grid(ls='--')
 plt.show()
-'''
+
 
 # Display the dataframe corresponding to the eeg_id which appears the most 'eeg_id'=2259539799
 df_max_eeg_id = df[df['eeg_id']==df_count_eeg_id.loc[df_count_eeg_id['Count'].idxmax(),'eeg_id']]
@@ -195,6 +195,9 @@ eeg_ids_with_multiple_spectrogram = eeg_spectrogram_count[eeg_spectrogram_count 
 
 # Display the result
 print(eeg_ids_with_multiple_spectrogram)
+'''
+
+
 
 
 
@@ -241,19 +244,23 @@ print(df_min_spectrogram_id['expert_consensus'].unique())
 # Display the min-max spectrogram_label_offset_seconds
 print(df['spectrogram_label_offset_seconds'].min())
 print(df['spectrogram_label_offset_seconds'].max())
+
 '''
 
 
 
+# patient_id: There are 1950 different patient_id. 
 
-# patient_id: There are 1950 different patient_id. The occurrence is between 1 and 2215 corresponding to different combination of ('eeg_id','eeg_sub_id', 'eeg_label_offset_seconds',spectrogram_id',spectrogram_sub_id',spectrogram_label_offset_seconds).
-#                                                  Some combinations appears few times
-'''
+# The occurrence is between 1 and 2215 corresponding to different combination of ('eeg_id','eeg_sub_id', 'eeg_label_offset_seconds',spectrogram_id',spectrogram_sub_id',spectrogram_label_offset_seconds).
+# Some combinations appears few times
+
+
 # Count the number of unique Patient_id
 df_count_patient_id = df['patient_id'].value_counts().reset_index()
 df_count_patient_id.columns = ['patient_id','Count']
 print(df_count_patient_id)
 
+'''
 # Display if in a figure
 plt.figure(figsize=(12,8))
 plt.bar(df_count_patient_id.index, df_count_patient_id['Count'], color=colors, zorder=2)
@@ -263,43 +270,17 @@ plt.title('Distribution of patient_id')
 plt.legend()
 plt.grid(ls='--')
 plt.show()
+'''
 
 # Display the dataframe corresponding to the patient_id which appears the most ('patient_id'=30631)
 df_max_patient_id = df[df['patient_id']==df_count_patient_id.loc[df_count_patient_id['Count'].idxmax(),'patient_id']]
 print(df_max_patient_id)
-'''
 
 
 
 
 
 
-'''
-# Count the number of unique eeg_id, spectrogram_id, label_id, patient_id and Select columns with float type and observe the histogram
-list_column_id = ['eeg_id', 'spectrogram_id', 'label_id', 'patient_id']
-for id in list_column_id:
-    df_count_id = df[id].value_counts().reset_index()
-    df_count_id.columns = [id,'Count']
-    print(df_count_id)
 
-
-print(df_count_id.loc[df_count_id['Count'].idxmax(),'patient_id'])
-
-print(df[df['patient_id']==df_count_id.loc[df_count_id['Count'].idxmax(),'patient_id']])
-'''
-
-'''
-plt.figure(figsize=(12,8))
-for id in list_column_id:
-    df_counts = df[id].value_counts().reset_index()
-    df_counts.columns=[id,'count']
-    plt.bar(df_counts.index, df_counts['count'], color=colors, zorder=2)
-    plt.xlabel(id)
-    plt.ylabel('Count')
-    plt.title(f'Distribution of {id}')
-    plt.legend()
-    plt.grid(ls='--')
-    plt.show()
-'''
 
 
