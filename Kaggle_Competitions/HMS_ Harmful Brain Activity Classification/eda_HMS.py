@@ -4,10 +4,7 @@ import pandas as pd
 import seaborn as sns
 
 
-from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-from sklearn.feature_selection import VarianceThreshold
-from sklearn.model_selection import validation_curve
 
 
 data_train_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train.csv'
@@ -28,6 +25,7 @@ data_train_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/
 
 - Target Visualization: The target variable is well balanced. Number of votes for each type of activity is between 15000 and 20000
 - Significance of Variables:
+- Relationship Target/target: it seems that seizure is correlated with grda_vote (24%), other_vote (21%), lrda_vote (17%), gpd_vote (13%), lpd_vote (13%). lrda_vote and gpd_vote (15%). The rest seems to be negligeable (-8%)
 - Relationship Variables/Target:
 
 
@@ -96,8 +94,10 @@ print(df_resume)
 ############################################################################################################################################################################################
 
 
-
+##########################################
 ########## Target vizualisation ##########
+##########################################
+
 
 # Define the target columns
 target_columns = ['seizure_vote', 'lpd_vote','gpd_vote','lrda_vote','grda_vote','other_vote']
@@ -133,13 +133,14 @@ plt.show()
 
 
 
-########## Significance of Variables ##########
 
 
+##########################################
+######  Significance of Variables  #######
+##########################################
 
 
 # label_id: Nothing to say since it's a unique number representing each cases in the dataset
-
 
 
 
@@ -227,18 +228,18 @@ plt.grid(ls='--')
 plt.show()
 
 
-# Display the dataframe corresponding to the eeg_id which appears the most 'eeg_id'=2259539799
+# Display the dataframe corresponding to the spectrogram_id which appears the most 'spectrogram_id'=2259539799
 df_max_spectrogram_id = df[df['spectrogram_id']==df_count_spectrogram_id.loc[df_count_spectrogram_id['Count'].idxmax(),'spectrogram_id']]
 print(df_max_spectrogram_id)
 
-# Display the different result of expert consensus for this eeg_id
+# Display the different result of expert consensus for this spectrogram_id
 print(df_max_spectrogram_id['expert_consensus'].unique())
 
-# Display the dataframe corresponding to the eeg_id which appears the least 'eeg_id'=98046913 (one of them)
+# Display the dataframe corresponding to the spectrogram_id which appears the least 'spectrogram_id'=98046913 (one of them)
 df_min_spectrogram_id = df[df['spectrogram_id']==df_count_spectrogram_id.loc[df_count_spectrogram_id['Count'].idxmin(),'spectrogram_id']]
 print(df_min_spectrogram_id)
 
-# Display the different result of expert consensus for this eeg_id
+# Display the different result of expert consensus for this spectrogram_id
 print(df_min_spectrogram_id['expert_consensus'].unique())
 
 # Display the min-max spectrogram_label_offset_seconds
@@ -252,13 +253,14 @@ print(df['spectrogram_label_offset_seconds'].max())
 # patient_id: There are 1950 different patient_id. 
 
 # The occurrence is between 1 and 2215 corresponding to different combination of ('eeg_id','eeg_sub_id', 'eeg_label_offset_seconds',spectrogram_id',spectrogram_sub_id',spectrogram_label_offset_seconds).
-# Some combinations appears few times
 
 
+'''
 # Count the number of unique Patient_id
 df_count_patient_id = df['patient_id'].value_counts().reset_index()
 df_count_patient_id.columns = ['patient_id','Count']
 print(df_count_patient_id)
+'''
 
 '''
 # Display if in a figure
@@ -272,15 +274,161 @@ plt.grid(ls='--')
 plt.show()
 '''
 
+'''
 # Display the dataframe corresponding to the patient_id which appears the most ('patient_id'=30631)
 df_max_patient_id = df[df['patient_id']==df_count_patient_id.loc[df_count_patient_id['Count'].idxmax(),'patient_id']]
 print(df_max_patient_id)
 
 
+# Display the dataframe corresponding to the patient_id which appears the least ('patient_id'=10324)
+df_min_patient_id = df[df['patient_id']==df_count_patient_id.loc[df_count_patient_id['Count'].idxmin(),'patient_id']]
+print(df_min_patient_id)
+'''
+
+
+
+
+##########################################
+######  Relationship Target/Target  ######
+##########################################
+
+'''
+# Define a correlation matrix between target columns
+correlation_matrix_target = df[target_columns].corr()
+
+# Plot the correlation matrix with clusters
+plt.figure(figsize=(12,8))
+sns.heatmap(correlation_matrix_target, annot=True, cmap='viridis')
+plt.title('Correlation matrix between target columns')
+plt.show()
+'''
 
 
 
 
 
+##########################################
+######  Relationship Variable/Target  ####
+##########################################
+
+
+
+# patient_id/expert_consensus: Each patient_id can have more than one expert_consensus
+
+'''
+# Display the dataframe corresponding to columns 'patient_id', 'expert_consensus'
+df_patient_id_expert_consensus = df[['patient_id','expert_consensus']]
+print(df_patient_id_expert_consensus)
+
+# Count the unique expert_consensus for each patient_id
+patient_consensus_count = df.groupby('patient_id')['expert_consensus'].nunique()
+
+# Filter the eeg_ids that have more than one unique spectrogram_id
+patient_ids_with_multiple_expert_consensus = patient_consensus_count[patient_consensus_count > 1]
+
+# Display the result
+print(patient_ids_with_multiple_expert_consensus)
+
+# Example of a patient_id with diffent expert_consensus
+print(df[df['patient_id']==105])
+'''
+
+
+
+
+
+# eeg_id, eeg_sub_id, eeg_label_offset_seconds/expert_consensus: Each eeg_id can have different expert consensus based on the eeg_sub_id or eeg_label_offset_seconds we look at.
+
+'''
+# Display the dataframe corresponding to columns 'eeg_id', 'eeg_sub_id', 'eeg_label_offset_seconds', 'expert_consensus'
+df_eeg_expert_consensus = df[['eeg_id','eeg_sub_id','eeg_label_offset_seconds','expert_consensus']]
+print(df_eeg_expert_consensus)
+
+# Count the unique expert_consensus for each eeg_id
+eeg_consensus_count = df.groupby(['eeg_id'])['expert_consensus'].nunique()
+
+# Filter the eeg_ids that have more than one unique expert_consensus
+eeg_ids_with_multiple_expert_consensus = eeg_consensus_count[eeg_consensus_count > 1]
+
+# Display the result
+print(eeg_ids_with_multiple_expert_consensus)
+
+
+# Example of a eeg_id with diffent expert_consensus
+print(df[df['eeg_id']==21379701])
+'''
+
+
+
+
+# spectrogram_id, spectrogram_sub_id, spectrogram_label_offset_seconds/expert_consensus:
+
+
+# Display the dataframe corresponding to columns 'spectrogram_id', 'spectrogram_sub_id', 'spectrogram_label_offset_seconds', 'expert_consensus'
+df_spec_expert_consensus = df[['spectrogram_id','spectrogram_sub_id','spectrogram_label_offset_seconds','expert_consensus']]
+print(df_spec_expert_consensus)
+
+# Count the unique expert_consensus for each spectrogram
+spec_consensus_count = df.groupby(['spectrogram_id'])['expert_consensus'].nunique()
+
+# Filter the spectrogram_ids that have more than one unique expert_consensus
+spec_ids_with_multiple_expert_consensus = spec_consensus_count[spec_consensus_count > 1]
+
+# Display the result
+print(spec_ids_with_multiple_expert_consensus)
+
+# Example of a spectrogram_id with diffent expert_consensus
+print(df[df['spectrogram_id']==12849827])
+
+
+
+
+
+
+
+
+
+
+
+
+##########################################
+### Relationship Variables/Variables  ####
+##########################################
+
+
+# eeg_id/spectrogram_id: A eeg_id is associated to a unique spectrogram_id but a spectrogram_id can contain different eeg_id
+
+'''
+# Count the unique spectrogram_ids for each eeg_id
+eeg_spectrogram_count = df.groupby('eeg_id')['spectrogram_id'].nunique()
+
+# Filter the eeg_ids that have more than one unique spectrogram_id and display the result
+eeg_ids_with_multiple_spectrogram = eeg_spectrogram_count[eeg_spectrogram_count > 1]
+print(eeg_ids_with_multiple_spectrogram)
+
+
+# Count the number of unique spectrogram_id
+df_count_spectrogram_id = df['spectrogram_id'].value_counts().reset_index()
+df_count_spectrogram_id.columns = ['spectrogram_id','Count']
+
+# Display the dataframe corresponding to the spectrogram_id which appears the most 'spectrogram_id'=2259539799
+df_max_spectrogram_id = df[df['spectrogram_id']==df_count_spectrogram_id.loc[df_count_spectrogram_id['Count'].idxmax(),'spectrogram_id']]
+print(df_max_spectrogram_id)
+
+
+
+# eeg_id/patient_id and spectrogram_id/patient_id: Each patient can have several different eeg_id and spectrogram_id
+
+
+# Count the number of unique Patient_id
+df_count_patient_id = df['patient_id'].value_counts().reset_index()
+df_count_patient_id.columns = ['patient_id','Count']
+print(df_count_patient_id)
+
+
+# Display the dataframe corresponding to the patient_id which appears the most ('patient_id'=30631)
+df_max_patient_id = df[df['patient_id']==df_count_patient_id.loc[df_count_patient_id['Count'].idxmax(),'patient_id']]
+print(df_max_patient_id)
+'''
 
 
