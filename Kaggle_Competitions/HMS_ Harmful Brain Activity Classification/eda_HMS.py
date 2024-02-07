@@ -14,28 +14,60 @@ data_train_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/
 '''
 ##################### Checklist: ######################
 
-# Form Analysis:
+# Initial Form Analysis:
 
 - Target Variable: (seizure_vote, lpd_vote, gpd_vote, lrda_vote, grda_vote, other_vote)
 - Rows and Columns: (106800, 15)
 - Types of Variables: 12 int64, 2 float64, 1 object
 - Analysis of Missing Variables: No missing value
 
-# Background Analysis:
+# Initial Background Analysis:
 
 - Target Visualization: The target variable is well balanced. Number of votes for each type of activity is between 15000 and 20000
 - Significance of Variables:
+        * label_id: Nothing to say since it's a unique number representing each cases in the dataset
+        * eeg_id: There are 17089 different eeg_id. Each eeg_id contains eeg_sub_id which can go from 0 to 742 associated to a eeg_label_offset_seconds which goes from 0.0 to 3372.0.
+          Thus the occurency of a eeg_id goes from 1 to 743. A eeg_id is associated to a unique spectrogram_id.
+        * spectrogram_id: There are 11138 different spectrogram_id Each spectrogram_id contains spectrogram_sub_id which can go from 0 to 1021 associated to a spectrogram_label_offset_seconds which goes from 0.0 to 17632.0?.
+          Thus the occurency of a spectrogram_id goes from 1 to 1022. A spectrogram_id can contain different eeg_id  
+        * patient_id: There are 1950 different patient_id. The occurrence is between 1 and 2215 corresponding to different combination of 
+          ('eeg_id','eeg_sub_id', 'eeg_label_offset_seconds',spectrogram_id',spectrogram_sub_id',spectrogram_label_offset_seconds).       
 - Relationship Target/target: it seems that seizure is correlated with grda_vote (24%), other_vote (21%), lrda_vote (17%), gpd_vote (13%), lpd_vote (13%). lrda_vote and gpd_vote (15%). The rest seems to be negligeable (-8%)
-- Relationship Variables/Target:
+- Relationship Variables/Target: 
+    * patient_id/expert_consensus: Each patient_id can have more than one expert_consensus corresponding to a particular configuration (seizure_vote, lpd_vote, gpd_vote, lrda_vote, grda_vote, other_vote).
+    * eeg_id, eeg_sub_id, eeg_label_offset_seconds/expert_consensus: Each eeg_id can have different expert consensus based on the eeg_sub_id or eeg_label_offset_seconds we look at.
+    * spectrogram_id, spectrogram_sub_id, spectrogram_label_offset_seconds/expert_consensus: Each spectrogram_id can have different expert consensus based on spectrogram_sub_id, spectrogram_label_offset_seconds 
+      but also the eeg_id we look at.
+- Relationship Variables/variables: 
+    * eeg_id/spectrogram_id: A eeg_id is associated to a unique spectrogram_id but a spectrogram_id can contain different eeg_id.
+    * eeg_id/patient_id and spectrogram_id/patient_id: Each patient can have several different eeg_id and spectrogram_id.
 
-
-# Initial Conclusion:
 
 # Detailed Analysis
 
+
+
+
+
+
+
+
+
+
+
 - Relationship Variables/Variables:
 
-- NaN Analysis: 
+
+
+
+
+
+
+
+
+
+
+
 
 # Null Hypotheses (H0):
 
@@ -98,7 +130,7 @@ print(df_resume)
 ########## Target vizualisation ##########
 ##########################################
 
-
+'''
 # Define the target columns
 target_columns = ['seizure_vote', 'lpd_vote','gpd_vote','lrda_vote','grda_vote','other_vote']
 
@@ -115,7 +147,7 @@ count_df_consensus.columns=['expert_consensus','count']
 
 # Define colors
 colors = sns.color_palette("viridis", len(count_df_consensus))
-'''
+
 # Display df_consensus in a bar
 plt.figure(figsize=(12,8))
 plt.bar(count_df_consensus['expert_consensus'], count_df_consensus['count'], color=colors, zorder=2)
@@ -361,9 +393,10 @@ print(df[df['eeg_id']==21379701])
 
 
 
-# spectrogram_id, spectrogram_sub_id, spectrogram_label_offset_seconds/expert_consensus:
-
-
+# spectrogram_id, spectrogram_sub_id, spectrogram_label_offset_seconds/expert_consensus: Each spectrogram_id can have different expert consensus based on spectrogram_sub_id, spectrogram_label_offset_seconds 
+#                                                                                        but also the eeg_id we look at.
+                                                                                        
+'''
 # Display the dataframe corresponding to columns 'spectrogram_id', 'spectrogram_sub_id', 'spectrogram_label_offset_seconds', 'expert_consensus'
 df_spec_expert_consensus = df[['spectrogram_id','spectrogram_sub_id','spectrogram_label_offset_seconds','expert_consensus']]
 print(df_spec_expert_consensus)
@@ -379,7 +412,7 @@ print(spec_ids_with_multiple_expert_consensus)
 
 # Example of a spectrogram_id with diffent expert_consensus
 print(df[df['spectrogram_id']==12849827])
-
+'''
 
 
 
@@ -414,12 +447,12 @@ df_count_spectrogram_id.columns = ['spectrogram_id','Count']
 # Display the dataframe corresponding to the spectrogram_id which appears the most 'spectrogram_id'=2259539799
 df_max_spectrogram_id = df[df['spectrogram_id']==df_count_spectrogram_id.loc[df_count_spectrogram_id['Count'].idxmax(),'spectrogram_id']]
 print(df_max_spectrogram_id)
-
+'''
 
 
 # eeg_id/patient_id and spectrogram_id/patient_id: Each patient can have several different eeg_id and spectrogram_id
 
-
+'''
 # Count the number of unique Patient_id
 df_count_patient_id = df['patient_id'].value_counts().reset_index()
 df_count_patient_id.columns = ['patient_id','Count']
@@ -432,3 +465,59 @@ print(df_max_patient_id)
 '''
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################################################################################################################################################################
+#                                                                                           FORM ANALYSIS TRAIN EEG
+############################################################################################################################################################################################
+
+GET_ROW = 0
+EEG_PATH = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_eegs/'
+SPEC_PATH = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_spectrograms/'
+
+train = pd.read_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train.csv')
+row = train.iloc[GET_ROW]
+
+eeg = pd.read_parquet(f'{EEG_PATH}{1628180742}.parquet')
+eeg_offset = int( row.eeg_label_offset_seconds )
+eeg = eeg.iloc[eeg_offset*200:(eeg_offset+50)*200]
+
+spectrogram = pd.read_parquet(f'{SPEC_PATH}{353733}.parquet')
+spec_offset = int( row.spectrogram_label_offset_seconds )
+spectrogram = spectrogram.loc[(spectrogram.time>=spec_offset)
+                     &(spectrogram.time<spec_offset+600)]
+
+# Copy the Data
+df_eeg = spectrogram.copy()
+
+# Observe few lines 
+print(df_eeg)
+
+# Shape of the data
+print('The shape of df is:', df_eeg.shape)
+
+# Create columns
+Column_name = list(df_eeg.columns)
+
+# Number of NaN in each column
+number_na = df_eeg.isna().sum()
+
+# Type of Data and the number
+types = df_eeg.dtypes
+number_types = df_eeg.dtypes.value_counts()
+print(number_types)
+
+# Create a resume table
+df_eeg_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na})
+print(df_eeg_resume)
