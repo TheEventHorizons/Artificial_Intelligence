@@ -482,27 +482,41 @@ print(df_max_patient_id)
 #                                                                                           FORM ANALYSIS TRAIN EEG
 ############################################################################################################################################################################################
 
-GET_ROW = 0
-EEG_PATH = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_eegs/'
-SPEC_PATH = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_spectrograms/'
+GET_ROW = 1
+train_eeg_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_eegs/'
+train_spec_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_spectrograms/'
 
 train = pd.read_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train.csv')
 row = train.iloc[GET_ROW]
 
-eeg = pd.read_parquet(f'{EEG_PATH}{1628180742}.parquet')
+df_eeg = pd.read_parquet(f'{train_eeg_path}{row.eeg_id}.parquet')
 eeg_offset = int( row.eeg_label_offset_seconds )
-eeg = eeg.iloc[eeg_offset*200:(eeg_offset+50)*200]
+df_eeg = df_eeg.iloc[eeg_offset*200:(eeg_offset+50)*200]
 
-spectrogram = pd.read_parquet(f'{SPEC_PATH}{353733}.parquet')
+df_spectrogram = pd.read_parquet(f'{train_spec_path}{row.spectrogram_id}.parquet')
 spec_offset = int( row.spectrogram_label_offset_seconds )
-spectrogram = spectrogram.loc[(spectrogram.time>=spec_offset)
-                     &(spectrogram.time<spec_offset+600)]
+df_spectrogram = df_spectrogram.loc[(df_spectrogram.time>=spec_offset)
+                     &(df_spectrogram.time<spec_offset+600)]
+
+
+print(df[df['eeg_id']==1628180742]['eeg_label_offset_seconds'].unique())
+
 
 # Copy the Data
-df_eeg = spectrogram.copy()
+df_eeg = df_eeg.copy()
+
+print(df[df['eeg_id']==1628180742]['eeg_label_offset_seconds'].unique()[GET_ROW])
+
+# Create columns time with offset_seconds
+sample_per_second = 200
+seconds = df_eeg.shape[0] / sample_per_second
+df_eeg['second_with_offset'] = df_eeg.reset_index()['index']/200 +df[df['eeg_id']==1628180742]['eeg_label_offset_seconds'].unique()[GET_ROW]
+
+#np.repeat(np.arange(seconds)+df[df['eeg_id']==1628180742]['eeg_label_offset_seconds'].unique()[1], 200)
+
 
 # Observe few lines 
-print(df_eeg)
+print(df_eeg.head())
 
 # Shape of the data
 print('The shape of df is:', df_eeg.shape)
@@ -516,8 +530,36 @@ number_na = df_eeg.isna().sum()
 # Type of Data and the number
 types = df_eeg.dtypes
 number_types = df_eeg.dtypes.value_counts()
-print(number_types)
+#print(number_types)
 
 # Create a resume table
 df_eeg_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na})
-print(df_eeg_resume)
+#print(df_eeg_resume)
+
+
+
+
+
+plt.figure(figsize=(12, 8))
+plt.plot(df_eeg['second_with_offset'], df_eeg['Fp1'], c='black')
+#plt.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)
+plt.fill_between(df_eeg['second_with_offset'], df_eeg['Fp1'].min(), df_eeg['Fp1'].max(), where=[(x >= 20) and (x <= 30) for x in df_eeg['second_with_offset']], color='lightblue', alpha=0.7)
+plt.ylabel('Fp1')
+plt.grid(ls='--')
+plt.show()
+
+
+
+
+
+'''
+plt.figure(figsize=(12, 8))
+for index, column in enumerate(df_eeg.columns):
+    plt.subplot(len(df_eeg.columns), 1, index + 1)
+    plt.plot(df_eeg.index, df_eeg[column], c='black')
+    plt.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)
+    plt.ylabel(column)
+    plt.grid(ls='--')
+
+plt.show()
+'''
