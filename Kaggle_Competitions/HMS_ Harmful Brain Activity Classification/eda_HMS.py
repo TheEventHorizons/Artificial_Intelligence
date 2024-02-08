@@ -12,7 +12,9 @@ data_train_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/
 
 
 '''
-##################### Checklist: ######################
+############################################################################################################################################################################################
+#                                                                                           CHECKLIST
+############################################################################################################################################################################################
 
 # Initial Form Analysis:
 
@@ -478,48 +480,97 @@ print(df_max_patient_id)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ############################################################################################################################################################################################
-#                                                                                           FORM ANALYSIS TRAIN EEG
+#                                                                                            ANALYSIS TRAIN EEG
 ############################################################################################################################################################################################
 
-GET_ROW = 1
+'''
+# Form Analysis:
+
+- Rows and Columns: (10000, 20) + (0,1) to facilitate our comprehension, corresponding the 'eeg_label_offset_seconds' column. Each combination ('eeg_id', 'eeg_sub_id') corresponds to a 50 second long subsample 
+                    starting at time 'eeg_label_offset_seconds' where 200 samples were taken each second. 
+- Types of Variables: 20 float64
+- Analysis of Missing Variables: No missing value
+
+# Background Analysis:
+
+- Significance of Variables:
+    * Each column represents a measure done by a particular electrode placed on the head of the patient
+- Relationship Variables/Target: 
+
+- Relationship Variables/variables: 
+    * Variables seem to be generally correlated according to the distance in a defined montage
+    * Correlations between variables change according to the label_id
+
+
+# Detailed Analysis
+
+'''
+
+
+# Analysis of one particular eeg_id (the first one 'eeg_id'=1628180742)
+
 train_eeg_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_eegs/'
 train_spec_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_spectrograms/'
-
 train = pd.read_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train.csv')
-row = train.iloc[GET_ROW]
 
+GET_ROW = 1
+row = train.iloc[GET_ROW]
 df_eeg = pd.read_parquet(f'{train_eeg_path}{row.eeg_id}.parquet')
 eeg_offset = int( row.eeg_label_offset_seconds )
 df_eeg = df_eeg.iloc[eeg_offset*200:(eeg_offset+50)*200]
 
+'''
 df_spectrogram = pd.read_parquet(f'{train_spec_path}{row.spectrogram_id}.parquet')
 spec_offset = int( row.spectrogram_label_offset_seconds )
 df_spectrogram = df_spectrogram.loc[(df_spectrogram.time>=spec_offset)
                      &(df_spectrogram.time<spec_offset+600)]
+'''
 
+# Count the number of offset_seconds for a unique eeg_id
+print(df.iloc[GET_ROW]['eeg_id'])
+print(df[df['eeg_id'] == df.iloc[GET_ROW]['eeg_id']]['eeg_label_offset_seconds'].unique())
 
-print(df[df['eeg_id']==1628180742]['eeg_label_offset_seconds'].unique())
+# Print the unique offset_seconds for a specific row
+print(df[df.reset_index()['index']==GET_ROW]['eeg_label_offset_seconds'])
 
 
 # Copy the Data
 df_eeg = df_eeg.copy()
 
-print(df[df['eeg_id']==1628180742]['eeg_label_offset_seconds'].unique()[GET_ROW])
-
 # Create columns time with offset_seconds
 sample_per_second = 200
-seconds = df_eeg.shape[0] / sample_per_second
-df_eeg['second_with_offset'] = df_eeg.reset_index()['index']/200 +df[df['eeg_id']==1628180742]['eeg_label_offset_seconds'].unique()[GET_ROW]
+df_eeg['seconds_with_offset'] = range(df_eeg.shape[0]) 
+df_eeg['seconds_with_offset'] = df_eeg['seconds_with_offset']/sample_per_second +df[df.reset_index()['index']==GET_ROW]['eeg_label_offset_seconds'].unique()
 
-#np.repeat(np.arange(seconds)+df[df['eeg_id']==1628180742]['eeg_label_offset_seconds'].unique()[1], 200)
 
 
 # Observe few lines 
 print(df_eeg.head())
 
 # Shape of the data
-print('The shape of df is:', df_eeg.shape)
+#print('The shape of df is:', df_eeg.shape)
 
 # Create columns
 Column_name = list(df_eeg.columns)
@@ -537,29 +588,89 @@ df_eeg_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of
 #print(df_eeg_resume)
 
 
-
-
-
+'''
+# Display the 3 first rows for the columns Fp1 and observe that there are overlaps
 plt.figure(figsize=(12, 8))
-plt.plot(df_eeg['second_with_offset'], df_eeg['Fp1'], c='black')
-#plt.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)
-plt.fill_between(df_eeg['second_with_offset'], df_eeg['Fp1'].min(), df_eeg['Fp1'].max(), where=[(x >= 20) and (x <= 30) for x in df_eeg['second_with_offset']], color='lightblue', alpha=0.7)
+for i in range(3):
+    GET_ROW = i
+    row = train.iloc[GET_ROW]
+    df_eeg = pd.read_parquet(f'{train_eeg_path}{row.eeg_id}.parquet')
+    eeg_offset = int( row.eeg_label_offset_seconds )
+    df_eeg = df_eeg.iloc[eeg_offset*200:(eeg_offset+50)*200] 
+    df_eeg = df_eeg.copy()
+    df_eeg['seconds_with_offset'] = range(df_eeg.shape[0]) 
+    df_eeg['seconds_with_offset'] = df_eeg['seconds_with_offset']/sample_per_second +df[df.reset_index()['index']==GET_ROW]['eeg_label_offset_seconds'].unique()
+    color = plt.cm.viridis(i/8.0)
+    plt.plot(df_eeg['seconds_with_offset'], df_eeg['Fp1'], c='black')
+    plt.fill_between(df_eeg['seconds_with_offset'], -250, 0, where=[(x >= df_eeg['seconds_with_offset'].min()) and (x <= df_eeg['seconds_with_offset'].max()) for x in df_eeg['seconds_with_offset']], color=color, alpha=0.7, label=f'row {i}')
+    plt.axvline(df_eeg['seconds_with_offset'].min(), color=color, linestyle='-', linewidth=2)
+    plt.axvline(df_eeg['seconds_with_offset'].max(), color=color, linestyle='-', linewidth=2)
 plt.ylabel('Fp1')
-plt.grid(ls='--')
+plt.legend()
+plt.grid(ls='--')    
 plt.show()
-
-
-
-
+'''
 
 '''
+# Display the full eeg_id for the columns Fp1 and the ten seconds that we need to predict and observe that there are overlaps
 plt.figure(figsize=(12, 8))
-for index, column in enumerate(df_eeg.columns):
-    plt.subplot(len(df_eeg.columns), 1, index + 1)
-    plt.plot(df_eeg.index, df_eeg[column], c='black')
-    plt.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)
-    plt.ylabel(column)
-    plt.grid(ls='--')
-
+for i in range(9):
+    GET_ROW = i
+    row = train.iloc[GET_ROW]
+    df_eeg = pd.read_parquet(f'{train_eeg_path}{row.eeg_id}.parquet')
+    eeg_offset = int( row.eeg_label_offset_seconds )
+    df_eeg = df_eeg.iloc[eeg_offset*200:(eeg_offset+50)*200] 
+    df_eeg = df_eeg.copy()
+    df_eeg['seconds_with_offset'] = range(df_eeg.shape[0]) 
+    df_eeg['seconds_with_offset'] = df_eeg['seconds_with_offset']/sample_per_second +df[df.reset_index()['index']==GET_ROW]['eeg_label_offset_seconds'].unique()
+    color = plt.cm.viridis(i/8.0)
+    plt.plot(df_eeg['seconds_with_offset'], df_eeg['Fp1'], c='black')
+    plt.fill_between(df_eeg['seconds_with_offset'], -250, 0, where=[(x >= ((df_eeg['seconds_with_offset'].max()+df_eeg['seconds_with_offset'].min())/2-5)) and (x <= ((df_eeg['seconds_with_offset'].max()+df_eeg['seconds_with_offset'].min())/2+5)) for x in df_eeg['seconds_with_offset']], color=color, alpha=0.7, label=f'row {i}')
+    plt.axvline((df_eeg['seconds_with_offset'].max()+df_eeg['seconds_with_offset'].min())/2-5, color=color, linestyle='-', linewidth=2)
+    plt.axvline((df_eeg['seconds_with_offset'].max()+df_eeg['seconds_with_offset'].min())/2+5, color=color, linestyle='-', linewidth=2)
+plt.ylabel('Fp1')
+plt.legend()
+plt.grid(ls='--')    
 plt.show()
 '''
+
+
+# Display all the columns of a particular eeg_id, eeg_sub_id  and the ten seconds that we need to predict
+plt.figure(figsize=(12, 8))
+for i, col in enumerate(df_eeg.columns[:-2]):
+    plt.subplot(len(df_eeg.columns),1,i+1)
+    plt.plot(df_eeg['seconds_with_offset'], df_eeg[col], c='black')
+    #plt.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)
+    plt.fill_between(df_eeg['seconds_with_offset'], df_eeg[col].min(), df_eeg[col].max(), where=[(x >= (df_eeg['seconds_with_offset'].min()+df_eeg['seconds_with_offset'].max())/2-5) and (x <= (df_eeg['seconds_with_offset'].min()+df_eeg['seconds_with_offset'].max())/2+5) for x in df_eeg['seconds_with_offset']], color='lightblue', alpha=0.7)
+    plt.axvline((df_eeg['seconds_with_offset'].max()+df_eeg['seconds_with_offset'].min())/2-5, color='lightblue', linestyle='-', linewidth=2)
+    plt.axvline((df_eeg['seconds_with_offset'].max()+df_eeg['seconds_with_offset'].min())/2+5, color='lightblue', linestyle='-', linewidth=2)
+    plt.ylabel(col)
+    plt.grid(ls='--')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+# Relationship variables eeg/variables eeg 
+
+# Define the dataframe of electrodes
+df_electrode = df_eeg.drop(['EKG','seconds_with_offset'], axis=1)
+
+# Plot the correlation matrix between electrodes
+sns.heatmap(df_electrode[df_electrode.columns].corr(), annot=True, cmap='viridis')
+plt.show()
+'''
+
+
+
+

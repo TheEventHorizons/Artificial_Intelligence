@@ -10,7 +10,7 @@ from sklearn.feature_selection import VarianceThreshold
 from sklearn.model_selection import validation_curve
 
 
-data_path = '/Users/jordanmoles/Documents/GitHub/Artificial_Intelligence/Covid19_project/dataset.xlsx'
+data_path = '/Users/jordanmoles/Documents/GitHub/Artificial_Intelligence/Kaggle_Competitions/Covid19_project/dataset.xlsx'
 
 
 
@@ -203,7 +203,7 @@ for col in df.select_dtypes('object'):
 
 ########### Relationship Variables/Target ###########
 
-'''
+
 # Creating positive and negative subsets
 
 # Positive subset
@@ -260,7 +260,7 @@ for col in viral_columns:
     sns.heatmap(pd.crosstab(df['SARS-Cov-2 exam result'], df[col]), annot=True, fmt='d')
     plt.legend()
     plt.show()
-'''
+
 
 ##############################################################################################
 #                                     SLIGHTLY ADVANCED ANALYSIS
