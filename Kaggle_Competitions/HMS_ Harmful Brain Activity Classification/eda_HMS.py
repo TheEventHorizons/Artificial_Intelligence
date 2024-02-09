@@ -523,9 +523,6 @@ print(df_max_patient_id)
     * Variables seem to be generally correlated according to the distance in a defined montage
     * Correlations between variables change according to the label_id
 
-
-# Detailed Analysis
-
 '''
 
 
@@ -548,6 +545,7 @@ df_spectrogram = df_spectrogram.loc[(df_spectrogram.time>=spec_offset)
                      &(df_spectrogram.time<spec_offset+600)]
 '''
 
+'''
 # Count the number of offset_seconds for a unique eeg_id
 print(df.iloc[GET_ROW]['eeg_id'])
 print(df[df['eeg_id'] == df.iloc[GET_ROW]['eeg_id']]['eeg_label_offset_seconds'].unique())
@@ -586,7 +584,7 @@ number_types = df_eeg.dtypes.value_counts()
 # Create a resume table
 df_eeg_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na})
 #print(df_eeg_resume)
-
+'''
 
 '''
 # Display the 3 first rows for the columns Fp1 and observe that there are overlaps
@@ -634,7 +632,7 @@ plt.grid(ls='--')
 plt.show()
 '''
 
-
+'''
 # Display all the columns of a particular eeg_id, eeg_sub_id  and the ten seconds that we need to predict
 plt.figure(figsize=(12, 8))
 for i, col in enumerate(df_eeg.columns[:-2]):
@@ -647,16 +645,7 @@ for i, col in enumerate(df_eeg.columns[:-2]):
     plt.ylabel(col)
     plt.grid(ls='--')
 plt.show()
-
-
-
-
-
-
-
-
-
-
+'''
 
 
 
@@ -674,3 +663,213 @@ plt.show()
 
 
 
+
+
+
+
+
+
+############################################################################################################################################################################################
+#                                                                                            ANALYSIS TRAIN SPECTROGRAM
+############################################################################################################################################################################################
+
+'''
+# Form Analysis:
+
+- Rows and Columns: (300, 401). Each combination ('spectrograms_id', 'spectrograms_sub_id') corresponds to a 600 seconds (ten minutes) long subsample starting at time 'spectrograms_label_offset_seconds' 
+                                where 1 sample was taken each 2 seconds. 
+- Types of Variables: 400 float32, 1 int64
+- Analysis of Missing Variables: No missing value
+
+# Background Analysis:
+
+- Significance of Variables:
+    * Each column represents a measure done by a particular groupe of electrode LL, LP, RL, RP placed on a particular place of the head of the patient and a column time
+    * Observe that different spectrograms_sub_id with the same id coincide for a large part 
+
+- Relationship Variables/variables: 
+    * Variables RL and RP with the same suffix number seem to be generally highly correlated (>88%) 
+    * Correlations between variables change according to the label_id
+
+'''
+
+
+# Analysis of one particular spectrogram_id (the first one 'spectrogram_id'=353733 associated to the previous eeg_id)
+
+train_eeg_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_eegs/'
+train_spec_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_spectrograms/'
+train = pd.read_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train.csv')
+
+GET_ROW = 0
+row = train.iloc[GET_ROW]
+
+'''
+df_eeg = pd.read_parquet(f'{train_eeg_path}{row.eeg_id}.parquet')
+eeg_offset = int( row.eeg_label_offset_seconds )
+df_eeg = df_eeg.iloc[eeg_offset*200:(eeg_offset+50)*200]
+'''
+
+df_spectrogram = pd.read_parquet(f'{train_spec_path}{row.spectrogram_id}.parquet')
+spec_offset = int( row.spectrogram_label_offset_seconds )
+df_spectrogram = df_spectrogram.loc[(df_spectrogram.time>=spec_offset)
+                     &(df_spectrogram.time<spec_offset+600)]
+
+
+# Count the number of offset_seconds for a unique eeg_id
+print(df.iloc[GET_ROW]['spectrogram_id'])
+print(df[df['spectrogram_id'] == df.iloc[GET_ROW]['spectrogram_id']]['spectrogram_label_offset_seconds'].unique())
+
+# Print the unique offset_seconds for a specific row
+print(df[df.reset_index()['index']==GET_ROW]['spectrogram_label_offset_seconds'])
+
+
+# Copy the Data
+df_spectrogram = df_spectrogram.copy()
+
+# Create columns time with offset_seconds
+sample_per_second = 0.5
+df_spectrogram['seconds_with_offset'] = range(df_spectrogram.shape[0]) 
+df_spectrogram['seconds_with_offset'] = df_spectrogram['seconds_with_offset']/sample_per_second +df[df.reset_index()['index']==GET_ROW]['spectrogram_label_offset_seconds'].unique()
+
+
+
+# Observe few lines 
+print(df_spectrogram.head())
+
+# Shape of the data
+print('The shape of df is:', df_spectrogram.shape)
+
+# Create columns
+Column_name = list(df_spectrogram.columns)
+
+# Number of NaN in each column
+number_na = df_spectrogram.isna().sum()
+
+# Type of Data and the number
+types = df_spectrogram.dtypes
+number_types = df_spectrogram.dtypes.value_counts()
+print(number_types)
+
+# Create a resume table
+df_spectrogram_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na})
+print(df_spectrogram_resume)
+
+
+'''
+# Display the 3 first rows for the columns LL_0.59 and observe that there are overlaps
+plt.figure(figsize=(12, 8))
+for i in range(3):
+    GET_ROW = i
+    row = train.iloc[GET_ROW]
+    df_spectrogram = pd.read_parquet(f'{train_spec_path}{row.spectrogram_id}.parquet')
+    spec_offset = int( row.spectrogram_label_offset_seconds )
+    df_spectrogram = df_spectrogram.loc[(df_spectrogram.time>=spec_offset)
+                     &(df_spectrogram.time<spec_offset+600)]
+    df_spectrogram = df_spectrogram.copy()
+    df_spectrogram['seconds_with_offset'] = range(df_spectrogram.shape[0]) 
+    df_spectrogram['seconds_with_offset'] = df_spectrogram['seconds_with_offset']/sample_per_second +df[df.reset_index()['index']==GET_ROW]['spectrogram_label_offset_seconds'].unique()
+    color = plt.cm.viridis(i/8.0)
+    plt.plot(df_spectrogram['seconds_with_offset'], df_spectrogram['LL_0.59'], c='black')
+    plt.fill_between(df_spectrogram['seconds_with_offset'], 0, 18, where=[(x >= df_spectrogram['seconds_with_offset'].min()) and (x <= df_spectrogram['seconds_with_offset'].max()) for x in df_spectrogram['seconds_with_offset']], color=color, alpha=0.7, label=f'row {i}')
+    plt.axvline(df_spectrogram['seconds_with_offset'].min(), color=color, linestyle='-', linewidth=2)
+    plt.axvline(df_spectrogram['seconds_with_offset'].max(), color=color, linestyle='-', linewidth=2)
+plt.ylabel('Fp1')
+plt.legend()
+plt.grid(ls='--')    
+plt.show()
+'''
+
+
+'''
+# Display the full spectrogram_id for the columns LL_0.59 and the ten seconds that we need to predict and observe that there are overlaps
+plt.figure(figsize=(12, 8))
+for i in range(9):
+    GET_ROW = i
+    row = train.iloc[GET_ROW]
+    df_spectrogram = pd.read_parquet(f'{train_spec_path}{row.spectrogram_id}.parquet')
+    spec_offset = int( row.spectrogram_label_offset_seconds )
+    df_spectrogram = df_spectrogram.loc[(df_spectrogram.time>=spec_offset)
+                     &(df_spectrogram.time<spec_offset+600)]
+    df_spectrogram = df_spectrogram.copy()
+    df_spectrogram['seconds_with_offset'] = range(df_spectrogram.shape[0]) 
+    df_spectrogram['seconds_with_offset'] = df_spectrogram['seconds_with_offset']/sample_per_second +df[df.reset_index()['index']==GET_ROW]['spectrogram_label_offset_seconds'].unique()
+    color = plt.cm.viridis(i/8.0)
+    plt.plot(df_spectrogram['seconds_with_offset'], df_spectrogram['LL_0.59'], c='black')
+    plt.fill_between(df_spectrogram['seconds_with_offset'], 0, 18, where=[(x >= ((df_spectrogram['seconds_with_offset'].max()+df_spectrogram['seconds_with_offset'].min())/2-5)) and (x <= ((df_spectrogram['seconds_with_offset'].max()+df_spectrogram['seconds_with_offset'].min())/2+5)) for x in df_spectrogram['seconds_with_offset']], color=color, alpha=0.7, label=f'row {i}')
+    plt.axvline((df_spectrogram['seconds_with_offset'].max()+df_spectrogram['seconds_with_offset'].min())/2-5, color=color, linestyle='-', linewidth=2)
+    plt.axvline((df_spectrogram['seconds_with_offset'].max()+df_spectrogram['seconds_with_offset'].min())/2+5, color=color, linestyle='-', linewidth=2)
+plt.ylabel('Fp1')
+plt.legend()
+plt.grid(ls='--')    
+plt.show()
+'''
+
+
+'''
+# Display the columns (LL_0.59, RL_0.59, LP_0.59, RP_0.59) of a particular spectrogram_id, spectrogram__sub_id  and the ten seconds that we need to predict
+plt.figure(figsize=(12, 8))
+for i, col in enumerate(['LL_0.59', 'RL_0.59', 'LP_0.59', 'RP_0.59']):
+    plt.subplot(len(['LL_0.59', 'RL_0.59', 'LP_0.59', 'RP_0.59']),1,i+1)
+    plt.plot(df_spectrogram['seconds_with_offset'], df_spectrogram[col], c='black')
+    #plt.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)
+    plt.fill_between(df_spectrogram['seconds_with_offset'], df_spectrogram[col].min(), df_spectrogram[col].max(), where=[(x >= (df_spectrogram['seconds_with_offset'].min()+df_spectrogram['seconds_with_offset'].max())/2-5) and (x <= (df_spectrogram['seconds_with_offset'].min()+df_spectrogram['seconds_with_offset'].max())/2+5) for x in df_spectrogram['seconds_with_offset']], color='lightblue', alpha=0.7)
+    plt.axvline((df_spectrogram['seconds_with_offset'].max()+df_spectrogram['seconds_with_offset'].min())/2-5, color='lightblue', linestyle='-', linewidth=2)
+    plt.axvline((df_spectrogram['seconds_with_offset'].max()+df_spectrogram['seconds_with_offset'].min())/2+5, color='lightblue', linestyle='-', linewidth=2)
+    plt.ylabel(col)
+    plt.grid(ls='--')
+plt.show()
+'''
+
+
+
+# Relationship variables/target ('expert_consensus')
+
+
+df_seizure = df[df['expert_consensus']== 'seizure']
+df_lpd = df[df['expert_consensus']== 'lpd']
+df_gpd = df[df['expert_consensus']== 'gpd']
+df_lrda = df[df['expert_consensus']== 'lrda']
+df_grda = df[df['expert_consensus']== 'grda']
+df_other = df[df['expert_consensus']== 'other']
+
+
+
+# Liste des différents types d'expert_consensus
+consensus_types = ['seizure', 'lpd', 'gpd', 'lrda', 'grda', 'other']
+
+# Boucle pour créer des distplots pour chaque mesure d'électrode et chaque classe
+for electrode_measure in range(20):
+    plt.figure(figsize=(12, 8))
+    for consensus_type in consensus_types:
+        sns.distplot(df[df['expert_consensus'] == consensus_type][f'eeg_{electrode_measure}'], label=consensus_type, hist=False)
+    plt.title(f'Distribution de eeg_{electrode_measure} par classe')
+    plt.legend()
+    plt.show()
+
+
+
+
+
+
+'''
+# Relationship variables spectrogram/variables sprectrogram zoom
+
+# Define the dataframe of montage
+df_montage = df_spectrogram[['LL_0.78', 'RL_0.78', 'LP_0.78', 'RP_0.78']]
+
+# Plot the correlation matrix between electrodes
+sns.heatmap(df_montage[df_montage.columns].corr(), annot=True, cmap='viridis')
+plt.show()
+'''
+
+
+'''
+# Relationship variables spectrogram/variables sprectrogram large
+
+# Define the dataframe of montage
+df_montage = df_spectrogram.drop(['seconds_with_offset'], axis=1)
+
+# Plot the correlation matrix between electrodes
+sns.heatmap(df_montage[df_montage.columns].corr(), annot=True, cmap='viridis')
+plt.show()
+'''
