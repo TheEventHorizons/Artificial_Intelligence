@@ -25,7 +25,7 @@ data_train_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/
 
 # Initial Background Analysis:
 
-- Target Visualization: The target variable is well balanced. Number of votes for each type of activity is between 15000 and 20000
+- Target Visualization: The target variable is well balanced. Number of expert consensus for each type of activity is between 15000 and 20000
 - Significance of Variables:
         * label_id: Nothing to say since it's a unique number representing each cases in the dataset
         * eeg_id: There are 17089 different eeg_id. Each eeg_id contains eeg_sub_id which can go from 0 to 742 associated to a eeg_label_offset_seconds which goes from 0.0 to 3372.0.
@@ -43,36 +43,6 @@ data_train_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/
 - Relationship Variables/variables: 
     * eeg_id/spectrogram_id: A eeg_id is associated to a unique spectrogram_id but a spectrogram_id can contain different eeg_id.
     * eeg_id/patient_id and spectrogram_id/patient_id: Each patient can have several different eeg_id and spectrogram_id.
-
-
-# Detailed Analysis
-
-
-
-
-
-
-
-
-
-
-
-- Relationship Variables/Variables:
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Null Hypotheses (H0):
-
 
 '''
 
@@ -348,8 +318,8 @@ plt.show()
 
 
 # patient_id/expert_consensus: Each patient_id can have more than one expert_consensus
-
 '''
+
 # Display the dataframe corresponding to columns 'patient_id', 'expert_consensus'
 df_patient_id_expert_consensus = df[['patient_id','expert_consensus']]
 print(df_patient_id_expert_consensus)
@@ -365,8 +335,31 @@ print(patient_ids_with_multiple_expert_consensus)
 
 # Example of a patient_id with diffent expert_consensus
 print(df[df['patient_id']==105])
-'''
 
+
+# Créer un dataframe avec les colonnes 'patient_id' et 'expert_consensus'
+df_patient_id_expert_consensus = df[['patient_id', 'expert_consensus']]
+
+# Compter le nombre d'expert_consensus uniques pour chaque patient_id
+patient_consensus_count = df.groupby('patient_id')['expert_consensus'].nunique()
+
+# Filtrer les patient_ids qui ont plus d'un expert_consensus unique
+patient_ids_with_multiple_expert_consensus = patient_consensus_count[patient_consensus_count > 1]
+
+# Calculer le pourcentage de patients pour chaque nombre d'expert_consensus unique
+percentage_dict = {}
+for i in range(1, 6):
+    count = (patient_consensus_count == i).sum()
+    percentage = (count / len(patient_consensus_count)) * 100
+    percentage_dict[i] = percentage
+
+# Créer un plot à barres
+plt.bar(percentage_dict.keys(), percentage_dict.values(), color='blue')
+plt.xlabel('Nombre d\'expert_consensus uniques')
+plt.ylabel('Pourcentage de patients')
+plt.title('Pourcentage de patients avec différents nombres d\'expert_consensus')
+plt.show()
+'''
 
 
 
@@ -696,6 +689,7 @@ plt.show()
 
 # Analysis of one particular spectrogram_id (the first one 'spectrogram_id'=353733 associated to the previous eeg_id)
 
+
 train_eeg_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_eegs/'
 train_spec_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_spectrograms/'
 train = pd.read_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train.csv')
@@ -708,6 +702,7 @@ df_eeg = pd.read_parquet(f'{train_eeg_path}{row.eeg_id}.parquet')
 eeg_offset = int( row.eeg_label_offset_seconds )
 df_eeg = df_eeg.iloc[eeg_offset*200:(eeg_offset+50)*200]
 '''
+
 
 df_spectrogram = pd.read_parquet(f'{train_spec_path}{row.spectrogram_id}.parquet')
 spec_offset = int( row.spectrogram_label_offset_seconds )
@@ -822,36 +817,10 @@ plt.show()
 
 
 
-# Relationship variables/target ('expert_consensus')
-
-
-df_seizure = df[df['expert_consensus']== 'seizure']
-df_lpd = df[df['expert_consensus']== 'lpd']
-df_gpd = df[df['expert_consensus']== 'gpd']
-df_lrda = df[df['expert_consensus']== 'lrda']
-df_grda = df[df['expert_consensus']== 'grda']
-df_other = df[df['expert_consensus']== 'other']
-
-
-
-# Liste des différents types d'expert_consensus
-consensus_types = ['seizure', 'lpd', 'gpd', 'lrda', 'grda', 'other']
-
-# Boucle pour créer des distplots pour chaque mesure d'électrode et chaque classe
-for electrode_measure in range(20):
-    plt.figure(figsize=(12, 8))
-    for consensus_type in consensus_types:
-        sns.distplot(df[df['expert_consensus'] == consensus_type][f'eeg_{electrode_measure}'], label=consensus_type, hist=False)
-    plt.title(f'Distribution de eeg_{electrode_measure} par classe')
-    plt.legend()
-    plt.show()
 
 
 
 
-
-
-'''
 # Relationship variables spectrogram/variables sprectrogram zoom
 
 # Define the dataframe of montage
@@ -860,16 +829,6 @@ df_montage = df_spectrogram[['LL_0.78', 'RL_0.78', 'LP_0.78', 'RP_0.78']]
 # Plot the correlation matrix between electrodes
 sns.heatmap(df_montage[df_montage.columns].corr(), annot=True, cmap='viridis')
 plt.show()
-'''
 
 
-'''
-# Relationship variables spectrogram/variables sprectrogram large
-
-# Define the dataframe of montage
-df_montage = df_spectrogram.drop(['seconds_with_offset'], axis=1)
-
-# Plot the correlation matrix between electrodes
-sns.heatmap(df_montage[df_montage.columns].corr(), annot=True, cmap='viridis')
-plt.show()
-'''
+print(df_spectrogram.head())
