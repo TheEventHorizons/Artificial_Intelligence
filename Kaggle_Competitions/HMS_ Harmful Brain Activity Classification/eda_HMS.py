@@ -469,19 +469,39 @@ print(df_max_patient_id)
 df['total_votes'] = df[['seizure_vote', 'lpd_vote','gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']].sum(axis=1)
 print(df.head())
 
+'''
 # Display the total_votes
 plt.figure()
 sns.displot(df['total_votes'])
 plt.grid(ls='--')
 plt.show()
+'''
 
+# Modifying the previous code to add an additional column 'consensus_column' to 'df'
 
+# Finding the column with the largest number for each row and storing the value in 'consensus'
+df['consensus'] = df[['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']].max(axis=1)
 
+# Identifying the column name that corresponds to the max value for each row
+df['consensus_column'] = df[['seizure_vote', 'lpd_vote', 'gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']].idxmax(axis=1)
 
+# Display the DataFrame with the new columns
+print(df.head()) 
 
+# create a new column that shows the percentage agreement
+df['row_agreement'] = df['consensus']/df['total_votes']
+print(df.head()) 
 
+#df.to_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/row_agreement.csv', index = False)
 
-
+# Now, plotting the histogram for 'row_agreement'
+plt.figure(figsize=(10, 6))
+plt.hist(df['row_agreement'], bins=10, color='green', edgecolor='black')
+plt.title('Histogram of Row Agreement')
+plt.xlabel('Row Agreement')
+plt.ylabel('Frequency')
+plt.grid(ls='--')
+plt.show()
 
 
 
