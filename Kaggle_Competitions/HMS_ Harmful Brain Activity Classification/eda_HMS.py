@@ -465,6 +465,31 @@ print(df_max_patient_id)
 
 
 
+# Create total_votes
+df['total_votes'] = df[['seizure_vote', 'lpd_vote','gpd_vote', 'lrda_vote', 'grda_vote', 'other_vote']].sum(axis=1)
+print(df.head())
+
+# Display the total_votes
+plt.figure()
+sns.displot(df['total_votes'])
+plt.grid(ls='--')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -689,13 +714,14 @@ plt.show()
 
 # Analysis of one particular spectrogram_id (the first one 'spectrogram_id'=353733 associated to the previous eeg_id)
 
-
+'''
 train_eeg_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_eegs/'
 train_spec_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_spectrograms/'
 train = pd.read_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train.csv')
 
 GET_ROW = 0
 row = train.iloc[GET_ROW]
+'''
 
 '''
 df_eeg = pd.read_parquet(f'{train_eeg_path}{row.eeg_id}.parquet')
@@ -703,7 +729,7 @@ eeg_offset = int( row.eeg_label_offset_seconds )
 df_eeg = df_eeg.iloc[eeg_offset*200:(eeg_offset+50)*200]
 '''
 
-
+'''
 df_spectrogram = pd.read_parquet(f'{train_spec_path}{row.spectrogram_id}.parquet')
 spec_offset = int( row.spectrogram_label_offset_seconds )
 df_spectrogram = df_spectrogram.loc[(df_spectrogram.time>=spec_offset)
@@ -748,7 +774,7 @@ print(number_types)
 # Create a resume table
 df_spectrogram_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na})
 print(df_spectrogram_resume)
-
+'''
 
 '''
 # Display the 3 first rows for the columns LL_0.59 and observe that there are overlaps
@@ -820,7 +846,7 @@ plt.show()
 
 
 
-
+'''
 # Relationship variables spectrogram/variables sprectrogram zoom
 
 # Define the dataframe of montage
@@ -832,3 +858,4 @@ plt.show()
 
 
 print(df_spectrogram.head())
+'''
