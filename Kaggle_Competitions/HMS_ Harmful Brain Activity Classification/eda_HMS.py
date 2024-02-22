@@ -493,7 +493,7 @@ df['row_agreement'] = df['consensus']/df['total_votes']
 print(df.head()) 
 
 #df.to_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/row_agreement.csv', index = False)
-
+'''
 # Now, plotting the histogram for 'row_agreement'
 plt.figure(figsize=(10, 6))
 plt.hist(df['row_agreement'], bins=10, color='green', edgecolor='black')
@@ -502,9 +502,14 @@ plt.xlabel('Row Agreement')
 plt.ylabel('Frequency')
 plt.grid(ls='--')
 plt.show()
+'''
 
 
 
+# Define dataframe with small/large number of evaluator
+df_small_num_eval = df[df['total_votes']<9]
+df_large_num_eval = df[df['total_votes']>9]
+print(df_large_num_eval.head())
 
 
 
