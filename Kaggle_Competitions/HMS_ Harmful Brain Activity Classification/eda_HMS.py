@@ -477,6 +477,8 @@ plt.grid(ls='--')
 plt.show()
 '''
 
+'''
+
 # Modifying the previous code to add an additional column 'consensus_column' to 'df'
 
 # Finding the column with the largest number for each row and storing the value in 'consensus'
@@ -491,7 +493,7 @@ print(df.head())
 # create a new column that shows the percentage agreement
 df['row_agreement'] = df['consensus']/df['total_votes']
 print(df.head()) 
-
+'''
 #df.to_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/row_agreement.csv', index = False)
 '''
 # Now, plotting the histogram for 'row_agreement'
@@ -504,14 +506,22 @@ plt.grid(ls='--')
 plt.show()
 '''
 
-
+'''
 
 # Define dataframe with small/large number of evaluator
 df_small_num_eval = df[df['total_votes']<9]
 df_large_num_eval = df[df['total_votes']>9]
-print(df_large_num_eval.head())
+
+# Créez un masque pour sélectionner les lignes où eeg_label_offset_seconds est un multiple de 50
+mask = (df['eeg_label_offset_seconds'] % 50 == 0)
+
+# Appliquez le masque pour obtenir les lignes correspondantes
+result_df = df[mask]
 
 
+print(result_df)
+
+'''
 
 
 
@@ -588,7 +598,7 @@ df_spectrogram = df_spectrogram.loc[(df_spectrogram.time>=spec_offset)
                      &(df_spectrogram.time<spec_offset+600)]
 '''
 
-'''
+
 # Count the number of offset_seconds for a unique eeg_id
 print(df.iloc[GET_ROW]['eeg_id'])
 print(df[df['eeg_id'] == df.iloc[GET_ROW]['eeg_id']]['eeg_label_offset_seconds'].unique())
@@ -627,7 +637,7 @@ number_types = df_eeg.dtypes.value_counts()
 # Create a resume table
 df_eeg_resume = pd.DataFrame({'features': Column_name, 'Type': types, 'Number of NaN': number_na})
 #print(df_eeg_resume)
-'''
+
 
 '''
 # Display the 3 first rows for the columns Fp1 and observe that there are overlaps
@@ -675,7 +685,7 @@ plt.grid(ls='--')
 plt.show()
 '''
 
-'''
+
 # Display all the columns of a particular eeg_id, eeg_sub_id  and the ten seconds that we need to predict
 plt.figure(figsize=(12, 8))
 for i, col in enumerate(df_eeg.columns[:-2]):
@@ -688,7 +698,7 @@ for i, col in enumerate(df_eeg.columns[:-2]):
     plt.ylabel(col)
     plt.grid(ls='--')
 plt.show()
-'''
+
 
 
 
