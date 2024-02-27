@@ -477,8 +477,6 @@ plt.grid(ls='--')
 plt.show()
 '''
 
-'''
-
 # Modifying the previous code to add an additional column 'consensus_column' to 'df'
 
 # Finding the column with the largest number for each row and storing the value in 'consensus'
@@ -493,7 +491,7 @@ print(df.head())
 # create a new column that shows the percentage agreement
 df['row_agreement'] = df['consensus']/df['total_votes']
 print(df.head()) 
-'''
+
 #df.to_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/row_agreement.csv', index = False)
 '''
 # Now, plotting the histogram for 'row_agreement'
@@ -506,21 +504,19 @@ plt.grid(ls='--')
 plt.show()
 '''
 
-'''
 
+'''
 # Define dataframe with small/large number of evaluator
 df_small_num_eval = df[df['total_votes']<9]
 df_large_num_eval = df[df['total_votes']>9]
 
 # Créez un masque pour sélectionner les lignes où eeg_label_offset_seconds est un multiple de 50
-mask = (df['eeg_label_offset_seconds'] % 50 == 0)
+mask = (df['eeg_label_offset_seconds'] % 10 == 0)
 
 # Appliquez le masque pour obtenir les lignes correspondantes
 result_df = df[mask]
 
-
-print(result_df)
-
+print(result_df[result_df['eeg_id']==2259539799])
 '''
 
 
@@ -585,7 +581,8 @@ train_eeg_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/P
 train_spec_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_spectrograms/'
 train = pd.read_csv('/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train.csv')
 
-GET_ROW = 1
+
+GET_ROW = 0
 row = train.iloc[GET_ROW]
 df_eeg = pd.read_parquet(f'{train_eeg_path}{row.eeg_id}.parquet')
 eeg_offset = int( row.eeg_label_offset_seconds )
@@ -621,7 +618,7 @@ df_eeg['seconds_with_offset'] = df_eeg['seconds_with_offset']/sample_per_second 
 print(df_eeg.head())
 
 # Shape of the data
-#print('The shape of df is:', df_eeg.shape)
+print('The shape of df is:', df_eeg.shape)
 
 # Create columns
 Column_name = list(df_eeg.columns)
@@ -700,9 +697,57 @@ for i, col in enumerate(df_eeg.columns[:-2]):
 plt.show()
 
 
+GET_ROW = 69034
+row = train.iloc[GET_ROW]
+df_eeg_0 = pd.read_parquet(f'{train_eeg_path}{row.eeg_id}.parquet')
+eeg_offset_0 = int( row.eeg_label_offset_seconds )
+df_eeg_0 = df_eeg_0.iloc[eeg_offset_0*200:(eeg_offset_0+50)*200]
 
+# Copy the Data
+df_eeg_0 = df_eeg_0.copy()
+'''
+# Create columns time with offset_seconds
+sample_per_second = 200
+df_eeg_0['seconds_with_offset'] = range(df_eeg_0.shape[0]) 
+df_eeg_0['seconds_with_offset'] = df_eeg_0['seconds_with_offset']/sample_per_second +df[df.reset_index()['index']==GET_ROW]['eeg_label_offset_seconds'].unique()
+'''
+
+GET_ROW = 69035
+row = train.iloc[GET_ROW]
+df_eeg_1 = pd.read_parquet(f'{train_eeg_path}{row.eeg_id}.parquet')
+eeg_offset_1 = int( row.eeg_label_offset_seconds )
+df_eeg_1 = df_eeg_1.iloc[eeg_offset_1*200:(eeg_offset_1+50)*200]
+
+# Copy the Data
+df_eeg_1 = df_eeg_1.copy()
 
 '''
+# Create columns time with offset_seconds
+sample_per_second = 200
+df_eeg_1['seconds_with_offset'] = range(df_eeg_1.shape[0]) 
+df_eeg_1['seconds_with_offset'] = df_eeg_1['seconds_with_offset']/sample_per_second +df[df.reset_index()['index']==GET_ROW]['eeg_label_offset_seconds'].unique()
+'''
+#print(df_eeg_1)
+
+# Create columns
+Column_name = list(df_eeg_1.columns)
+
+# Number of NaN in each column
+number_na = df_eeg_1.isna().sum()
+#print(number_na)
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Relationship variables eeg/variables eeg 
 
 # Define the dataframe of electrodes
@@ -711,7 +756,7 @@ df_electrode = df_eeg.drop(['EKG','seconds_with_offset'], axis=1)
 # Plot the correlation matrix between electrodes
 sns.heatmap(df_electrode[df_electrode.columns].corr(), annot=True, cmap='viridis')
 plt.show()
-'''
+
 
 
 
