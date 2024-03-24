@@ -15,7 +15,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import make_pipeline
 
 
-data_path = '/Users/jordanmoles/Documents/GitHub/Artificial_Intelligence/Covid-19_project/dataset.xlsx'
+data_path = '/Users/jordanmoles/Documents/GitHub/Artificial_Intelligence/Kaggle_Competitions/Covid19_project/dataset.xlsx'
 
 
 
