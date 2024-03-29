@@ -6,7 +6,8 @@ from mne.time_frequency import tfr_morlet
 import cv2
 import os
 from tqdm import tqdm
-
+import warnings
+warnings.filterwarnings("ignore")
 
 data_train_path = '/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train.csv'
 
