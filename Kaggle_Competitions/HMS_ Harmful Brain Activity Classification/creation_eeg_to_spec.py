@@ -150,7 +150,7 @@ def spectrogram_from_eeg(eeg_id, display=False):
     idx = 0
     for offset_seconds in df[df['eeg_id']==eeg_id]['eeg_label_offset_seconds'].tolist():
         # LOAD MIDDLE 10 SECONDS OF EEG SERIES
-        eeg = pd.read_parquet(f'/kaggle/input/hms-harmful-brain-activity-classification/train_eegs/{eeg_id}.parquet')
+        eeg = pd.read_parquet(f'/Users/jordanmoles/Documents/Programmes_Informatiques/Python/Projects/Kaggle_Competitions/hms-harmful-brain-activity-classification/train_eegs/{eeg_id}.parquet')
         starting_time = (offset_seconds+20)*200 
         ending_time = (offset_seconds+30)*200
         eeg = eeg.loc[starting_time:ending_time]
