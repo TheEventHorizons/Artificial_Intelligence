@@ -53,7 +53,7 @@ data_path = '/Users/jordanmoles/Documents/GitHub/Artificial_Intelligence/Kaggle_
 
 # Detailed Analysis
 
-- Relationship Variables/Variables:
+- Relationship Variables/Variables: 
     * Blood_data/blood_data: Some variables are highly correlated, over 90%.
     * Blood_data/Age: Very weak correlation between age and blood levels.
     * Viral_data/viral_data: Influenza rapid test gives poor results; we may need to drop it.
@@ -228,13 +228,14 @@ viral_columns = df.columns[(missing_rate < 0.88) & (missing_rate > 0.75)]
 
 
 # Relation Target/Blood
+'''
 for col in blood_columns:
     plt.figure()
     sns.distplot(positive_df[col], label='positive')
     sns.distplot(negative_df[col], label='negative')
     plt.legend()
     plt.show()
-
+'''
 
 
 # Relation Target/Age
@@ -253,14 +254,14 @@ plt.show()
 
 
 # Relation Target/Viral
-
+'''
 # crosstab for two caterogies
 for col in viral_columns:
     plt.figure()
     sns.heatmap(pd.crosstab(df['SARS-Cov-2 exam result'], df[col]), annot=True, fmt='d')
     plt.legend()
     plt.show()
-
+'''
 
 ##############################################################################################
 #                                     SLIGHTLY ADVANCED ANALYSIS
@@ -272,7 +273,7 @@ for col in viral_columns:
 
 # * Blood Level Relationships
 
-'''
+
 # Plot the
 sns.pairplot(df[blood_columns])
 plt.show()
@@ -285,7 +286,7 @@ plt.show()
 # Plot the correlation matrix with clusters
 sns.clustermap(df[blood_columns].corr())
 plt.show()
-'''
+
 
 
 # * Relation age/blood
